@@ -1,1 +1,1 @@
-Sitemap: https://wrathofrathma.github.io/devlog/sitemap.xml
+Sitemap: https://kyso.dev/devlog/sitemap.xml
