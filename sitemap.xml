@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>https://kyso.dev/devlog/markdown/2020/01/14/test-markdown-post.html</loc>
+<loc>https://www.kyso.dev/devlog/markdown/2020/01/14/test-markdown-post.html</loc>
 <lastmod>2020-01-14T00:00:00-06:00</lastmod>
 </url>
 <url>
-<loc>https://kyso.dev/devlog/jupyter/2020/02/20/test.html</loc>
+<loc>https://www.kyso.dev/devlog/jupyter/2020/02/20/test.html</loc>
 <lastmod>2020-02-20T00:00:00-06:00</lastmod>
 </url>
 <url>
-<loc>https://kyso.dev/devlog/about/</loc>
+<loc>https://www.kyso.dev/devlog/about/</loc>
 </url>
 <url>
-<loc>https://kyso.dev/devlog/</loc>
+<loc>https://www.kyso.dev/devlog/</loc>
 </url>
 <url>
-<loc>https://kyso.dev/devlog/search/</loc>
+<loc>https://www.kyso.dev/devlog/search/</loc>
 </url>
 <url>
-<loc>https://kyso.dev/devlog/categories/</loc>
+<loc>https://www.kyso.dev/devlog/categories/</loc>
 </url>
 </urlset>
