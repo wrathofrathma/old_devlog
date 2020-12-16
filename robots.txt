@@ -1,1 +1,1 @@
-Sitemap: https://www.kyso.dev/devlog/sitemap.xml
+Sitemap: https://www.kyso.dev/sitemap.xml
