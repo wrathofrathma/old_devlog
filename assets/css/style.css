@@ -520,4 +520,6 @@ canvas { filter: invert(100%); }
 
 .site-footer { font-family: 'IBM Plex Mono', monospace; border: none; }
 
+.post-list .Box { background-color: rgba(255, 255, 255, 0.69); }
+
 /*# sourceMappingURL=style.css.map */
