@@ -1,19 +1,31 @@
 ---
 title: "Hosting an Express.js server on Firebase functions"
-description: "Today I learned how to host an express server on firebase!"
+description: "Some quick and simple notes on getting an express server running on firebase."
 layout: post
 toc: true
 comments: true
 hide: false
 search_exclude: false
-categories: [express, firebase]
+categories: [express, firebase, twitter, project 2]
 image: images/firebase.jpg
 ---
 
 # Overview
-For my next few projects I was planning on learning express.js and today I learned I can actually host an express.js server on firebase. 
+For my next few projects I knew I was planning on learning express.js, but hosting was a concern in my mind. I definitely wanted a place to host my progress for cheap. I was thinking of renting a VPS from ovh, which I might still do, but I found out a few days ago that it's possible to host express.js servers on firebase using their "functions". 
 
-In short, since firebase functions can run a node.js server and the request & response objects passed to the firebase functions are basically the same as express, it's incredibly simple to setup.
+It's also free for the first 2,000,000 function invocations, or in our case the first 2,000,000 API calls. So it's basically perfect for our little hobby projects. We also can set monthly budgets, so a random influx of traffic won't fuck us either. 
+
+## So why is it even compatible in the first place? 
+In short, the parameters passed to firebase functions' onRequest() method were designed after Express.js' Request & Response objects.  
+
+One of the firebase engineers explained why on StackOverflow.
+> This all works because under the covers, an Express app is actually just a function that takes a Node.js HTTP request and response and acts on them with some automatic sugaring such as routing. So you can pass an Express router or app to a Cloud Function handler without issue, because Express's req and res objects are compatible with the standard Node.js versions. Basically, it's a "double Express" app where one app is calling another.
+
+> As far as function lifecycle and shared state goes: functions are spun up in ephemeral compute instances that may survive to process multiple requests, but may not. You cannot tune or guarantee whether or not a function will be invoked in the same compute instance from one invocation to the next.
+
+>You can create resources (such as an Express app) outside of the function invocation and it will be executed when the compute resources are spun up for that function. This will survive as long as the instance does; however, CPU/network are throttled down to effectively zero between invocations, so you can't do any "work" outside of a function invocation's lifecycle. Once the promise resolves (or you've responded to the HTTP request), your compute resources will be clamped down via throttling and may be terminated at any moment.
+
+So it all works, pog. Let's get started.
 
 # Setup
 ## Create a firebase project
