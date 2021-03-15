@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Building a CRUD TODO with Vue 3.0 &amp; Adonis.js | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Building a CRUD TODO with Vue 3.0 &amp; Adonis.js" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="These are just some of my notes and challenges I faced while building a CRUD TODO website using Vue 3.0, Primevue, and Adonis.js" />
+<meta property="og:description" content="These are just some of my notes and challenges I faced while building a CRUD TODO website using Vue 3.0, Primevue, and Adonis.js" />
+<link rel="canonical" href="https://www.kyso.dev/vue/primevue/webdev/2021/03/14/FirstCrudTODO.html" />
+<meta property="og:url" content="https://www.kyso.dev/vue/primevue/webdev/2021/03/14/FirstCrudTODO.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/vue.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-14T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"These are just some of my notes and challenges I faced while building a CRUD TODO website using Vue 3.0, Primevue, and Adonis.js","url":"https://www.kyso.dev/vue/primevue/webdev/2021/03/14/FirstCrudTODO.html","@type":"BlogPosting","headline":"Building a CRUD TODO with Vue 3.0 &amp; Adonis.js","dateModified":"2021-03-14T00:00:00-06:00","datePublished":"2021-03-14T00:00:00-06:00","image":"https://www.kyso.dev/images/vue.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/vue/primevue/webdev/2021/03/14/FirstCrudTODO.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Building a CRUD TODO with Vue 3.0 &amp; Adonis.js</h1><p class="page-description">These are just some of my notes and challenges I faced while building a CRUD TODO website using Vue 3.0, Primevue, and Adonis.js</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-14T00:00:00-06:00" itemprop="datePublished">
+        Mar 14, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      30 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#vue">vue</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#primevue">primevue</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#my-decision-making-on-the-stack-i-choose-for-my-first-project">My decision making on the stack I choose for my first project.</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#backend-runtime-nodejs">Backend Runtime: Node.js</a></li>
+<li class="toc-entry toc-h3"><a href="#backend-framework-adonisjs">Backend Framework: Adonis.js</a></li>
+<li class="toc-entry toc-h3"><a href="#frontend-framework-vue-3">Frontend Framework: Vue 3</a></li>
+<li class="toc-entry toc-h3"><a href="#frontend-component-library-primevue">Frontend Component Library: Primevue</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#a-project-to-get-started">A project to get started</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#differences">Differences</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#building-the-backend">Building the backend</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup">Setup</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#installation">Installation</a></li>
+<li class="toc-entry toc-h3"><a href="#scaffolding-a-new-project">Scaffolding a new project</a></li>
+<li class="toc-entry toc-h3"><a href="#running-the-adonis-development-server">Running the Adonis development server</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#routing">Routing</a></li>
+<li class="toc-entry toc-h2"><a href="#database">Database</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#setup-1">Setup</a></li>
+<li class="toc-entry toc-h3"><a href="#migrations">Migrations</a></li>
+<li class="toc-entry toc-h3"><a href="#lucid-models">Lucid Models</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#authentication">Authentication</a></li>
+<li class="toc-entry toc-h2"><a href="#testing-the-api-with-postman">Testing the API with Postman</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#collections--folders">Collections &amp; Folders</a></li>
+<li class="toc-entry toc-h3"><a href="#creating-a-request">Creating a request</a></li>
+<li class="toc-entry toc-h3"><a href="#environments">Environments</a></li>
+<li class="toc-entry toc-h3"><a href="#test-scripts">Test scripts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#frontend-development">Frontend Development</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup-2">Setup</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#installation-1">Installation</a></li>
+<li class="toc-entry toc-h3"><a href="#installing-dependencies">Installing dependencies</a></li>
+<li class="toc-entry toc-h3"><a href="#setting-up-vuex">Setting up vuex</a></li>
+<li class="toc-entry toc-h3"><a href="#setting-up-vuex-persistedstate">Setting up vuex-persistedstate</a></li>
+<li class="toc-entry toc-h3"><a href="#vuex-router-sync">Vuex-router-sync</a></li>
+<li class="toc-entry toc-h3"><a href="#axios">Axios</a></li>
+<li class="toc-entry toc-h3"><a href="#setting-up-primevue">Setting up primevue</a></li>
+<li class="toc-entry toc-h3"><a href="#proxying-our-requests-to-our-adonis-dev-server">Proxying our requests to our adonis dev server</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#components">Components</a></li>
+<li class="toc-entry toc-h2"><a href="#routing--views">Routing &amp; Views</a></li>
+<li class="toc-entry toc-h2"><a href="#vuex-store">Vuex store</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#overview-1">Overview</a></li>
+<li class="toc-entry toc-h3"><a href="#creating-a-store--store-anatomy">Creating a store &amp; store anatomy</a></li>
+<li class="toc-entry toc-h3"><a href="#accessing-the-store">Accessing the store</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#differences--challenges-i-encountered">Differences &amp; challenges I encountered</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#text-fields">Text Fields</a></li>
+<li class="toc-entry toc-h3"><a href="#panel">Panel</a></li>
+<li class="toc-entry toc-h3"><a href="#infinite-recursion-bug">Infinite recursion bug?</a></li>
+<li class="toc-entry toc-h3"><a href="#vueset">Vue.set()</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#gluing-things-together">Gluing things together</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#building-the-frontend">Building the frontend</a></li>
+<li class="toc-entry toc-h2"><a href="#serving-via-adonis">Serving via adonis</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>So this is my first real attempt at learning web development. I played around with it about a year ago and have certainly used a handful of microframeworks with python for a variety of projects, but I’ve never really committed to learning frontend or even proper backend. This time we’re committed.</p>
+
+<p>All code for this project can be found here</p>
+
+<p>https://github.com/wrathofrathma/vue-adonis-todo</p>
+
+<h2 id="my-decision-making-on-the-stack-i-choose-for-my-first-project">
+<a class="anchor" href="#my-decision-making-on-the-stack-i-choose-for-my-first-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>My decision making on the stack I choose for my first project.</h2>
+<h3 id="backend-runtime-nodejs">
+<a class="anchor" href="#backend-runtime-nodejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Backend Runtime: Node.js</h3>
+<p>I went with a javascript based engine for a few reasons.</p>
+<ul>
+  <li>I already need to work with javascript for the frontend</li>
+  <li>There are tons of jobs in the express.js market</li>
+  <li>I predict there will be first class support for things like websockets and webrtc</li>
+  <li>Learning php + javascript seemed like a bit much for a first project. So keeping it simple and consistent.</li>
+</ul>
+
+<h3 id="backend-framework-adonisjs">
+<a class="anchor" href="#backend-framework-adonisjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Backend Framework: Adonis.js</h3>
+<p>Honestly, this was a hard decision to make. There are <strong>a lot</strong> of good node based frameworks, so why adonis? It came down to two points</p>
+<ul>
+  <li>Laravel is the king of php frameworks from what I hear, and adonis is attempting to be the javascript version of laravel. So why not give it a try.</li>
+  <li>I rather use a batteries included framework to start so I don’t get discouraged easier.</li>
+</ul>
+
+<h3 id="frontend-framework-vue-3">
+<a class="anchor" href="#frontend-framework-vue-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Frontend Framework: Vue 3</h3>
+<p>This was probably the simplest decision for me. From what I’ve read, out of Angular, React, and Vue, Vue is the most comfortable to program in. Even looking at React versus Vue code, Vue just seemed more approachable. Also the market for React developers is probably very saturated and competitive.</p>
+
+<p>I choose the Vue 3 preview over Vue 2 just because I rather get ahead of the game.</p>
+
+<h3 id="frontend-component-library-primevue">
+<a class="anchor" href="#frontend-component-library-primevue" aria-hidden="true"><span class="octicon octicon-link"></span></a>Frontend Component Library: Primevue</h3>
+<p>This was a rather limited, but still tough decision. Since most component libraries aren’t updated for Vue 3 yet, I was pretty much limited to Element, Ionic, Primevue, or making my own in Tailwind.</p>
+
+<p>Making my own components in Tailwind seems very attractive…but I think a large part of the battle as a developer is just knowing what is possible and where to look. Right now I don’t have any experience, so anything I design from scratch will be limited I think.</p>
+
+<p>I went with Primevue because it has a lot of components, the free theme selection is pretty top notch, and they have versions for react &amp; angular(should I switch in the future).</p>
+
+<h2 id="a-project-to-get-started">
+<a class="anchor" href="#a-project-to-get-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>A project to get started</h2>
+<p>From what I understand, CRUD TODO lists are basically the “hello world” of web development, so I sought out a tutorial matching these technologies and found a real gem of a tutorial by freecodecamp.</p>
+
+<p><a href="https://www.youtube.com/watch?v=dfEZlcPvez8">Full Stack Todo List tutorial using Vue.js &amp; Adonis.js</a></p>
+
+<h3 id="differences">
+<a class="anchor" href="#differences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Differences</h3>
+<p>There are a few key differences between the stack we’re using and the one in the tutorial video from 3 years ago.</p>
+<ul>
+  <li>Adonis.js’ structure has changed a little since the video release</li>
+  <li>Vue.js has been updated to Vue 3, which forces further changes</li>
+  <li>We’re using Primevue instead of Vuetify because Vuetify isn’t updated for Vue 3.</li>
+  <li>We’ve also added the material icon set because primeicons is quite limited.</li>
+</ul>
+
+<h1 id="building-the-backend">
+<a class="anchor" href="#building-the-backend" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building the backend</h1>
+<p>I’m a little torn between whether I should actually document the whole process or just note the challenges/differences I encountered. For posterity sake, I’m just going to go over everything but instead of show the full process, skip the repetitive parts and show mostly finished code.</p>
+
+<h2 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<p>The first hour or so of the tutorial is setting up the REST API using Adonis.</p>
+<h3 id="installation">
+<a class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+<p>Installation of Adonis is quite straightforward. I installed it their CLI tool globally, but you can also invoke it with npx.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>npm i <span class="nt">-g</span> @adonisjs/cli
+</code></pre></div></div>
+<h3 id="scaffolding-a-new-project">
+<a class="anchor" href="#scaffolding-a-new-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scaffolding a new project</h3>
+<p>Using the Adonis CLI you can scaffold out a basic project easily with</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adonis new server --api-only
+</code></pre></div></div>
+<p>The –api-only prevents it from using the fullstack blueprint and only includes the necessary files for building an API.</p>
+
+<h3 id="running-the-adonis-development-server">
+<a class="anchor" href="#running-the-adonis-development-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running the Adonis development server</h3>
+<p>Running the adonis dev server is about as simple as it could be.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adonis serve --dev
+</code></pre></div></div>
+
+<p>While the dev server is running, it will watch for all changes in the directory and live update the runtime.</p>
+
+<p>Right now, before any changes are made, if we visit the address the server is running on(defaulted to localhost:3333) we will get the response</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="err">greeting:</span><span class="w"> </span><span class="s2">"Hello world in JSON"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="routing">
+<a class="anchor" href="#routing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routing</h2>
+<p>To add any meaningful behavior to our server we need to add routes.</p>
+
+<p>All of the routes in Adonis.js are defined in start/routes.js. Below you can find the default configuration which includes the response we saw above.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/*
+|--------------------------------------------------------------------------
+| Routes
+|--------------------------------------------------------------------------
+|
+| Http routes are entry points to your web application. You can create
+| routes for different URLs and bind Controller actions to them.
+|
+| A complete guide on routing is available here.
+| http://adonisjs.com/docs/4.1/routing
+|
+*/</span>
+
+<span class="cm">/** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */</span>
+<span class="kd">const</span> <span class="nx">Route</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Route</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="nx">Route</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span> <span class="na">greeting</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Hello world in JSON</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>While in the default file they define a callback function in the route definition, typically the route logic is defined in a “controller”. Controllers are just objects that have functions for the various routes related to the theme of the controller.</p>
+
+<p>We can use the Adonis CLI to create a controller for users to register/login with.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adonis make:controller User
+</code></pre></div></div>
+<p>It’ll ask whether you want to create an HTTP or websocket controller, and for all cases of our REST API we’ll pick HTTP since we don’t need the realtime connection provided by websockets.</p>
+
+<p>The controller skeleton is created at app/Controllers/HTTP/UserController.js</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="kd">class</span> <span class="nx">UserController</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserController</span>
+</code></pre></div></div>
+
+<p>We defined a few methods inside of the UserController object to handle authentication.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="c1">// use() is an adonis specific method that they recommend replacing require() with</span>
+<span class="c1">// Here we're importing the user lucid model</span>
+<span class="kd">const</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">App/Models/User</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">UserController</span> <span class="p">{</span>
+    <span class="c1">//Adding auth to the object passed gives us access to the Auth from the AuthProvider defined in app.js</span>
+    <span class="c1">// Auth type is defined in config/auth.js</span>
+    <span class="k">async</span> <span class="nx">login</span><span class="p">({</span><span class="nx">request</span><span class="p">,</span> <span class="nx">auth</span><span class="p">})</span> <span class="p">{</span>
+        <span class="c1">// request.all groups together all the request parameters, then we use object deconstruction to get the necessary items</span>
+        <span class="kd">const</span> <span class="p">{</span><span class="nx">email</span><span class="p">,</span> <span class="nx">password</span><span class="p">}</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+        <span class="c1">//Auth attempt</span>
+        <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">attempt</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span> <span class="nx">password</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">token</span><span class="p">;</span>
+
+    <span class="p">}</span>
+
+    <span class="k">async</span> <span class="nx">register</span><span class="p">({</span><span class="nx">request</span><span class="p">})</span> <span class="p">{</span>
+        <span class="c1">// request.all groups together all the request parameters, then we use object deconstruction to get the necessary items</span>
+        <span class="kd">const</span> <span class="p">{</span> <span class="nx">email</span><span class="p">,</span> <span class="nx">password</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+
+        <span class="c1">//Calls the asynchronous model method to create a new user.</span>
+        <span class="c1">// Adonis comes with a UserSchema that already includes username, email, and password</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+            <span class="nx">email</span><span class="p">,</span>
+            <span class="nx">password</span><span class="p">,</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">email</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">login</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserController</span>
+</code></pre></div></div>
+
+<p>We can access these by creating routes in start/routes.js.</p>
+
+<p>In this completed example, you’ll notice a few things going on</p>
+<ul>
+  <li>We’ve grouped the routes together and applied an ‘api’ route prefix. So now you access the registration route by posting a request to localhost:3333/api/auth/register</li>
+  <li>We’ve added authentication middleware to routes that require a user to be logged in to access</li>
+  <li>Some routes have parameters/variables in the route, such as tasks/:id. This :id variable is passed to the controller as a parameter.</li>
+</ul>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/*
+|--------------------------------------------------------------------------
+| Routes
+|--------------------------------------------------------------------------
+|
+| Http routes are entry points to your web application. You can create
+| routes for different URLs and bind Controller actions to them.
+|
+| A complete guide on routing is available here.
+| http://adonisjs.com/docs/4.1/routing
+|
+*/</span>
+
+<span class="cm">/** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */</span>
+<span class="kd">const</span> <span class="nx">Route</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Route</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="c1">// Route.get('/', () =&gt; {</span>
+<span class="c1">//   return { greeting: 'Hello world in JSON' }</span>
+<span class="c1">// })</span>
+
+<span class="c1">// Groups routes together by a prefix</span>
+<span class="nx">Route</span><span class="p">.</span><span class="nx">group</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">//Sends the requests to our controller method created using adonis make:controller User</span>
+  <span class="c1">// then defining the register method</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth/register</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">UserController.register</span><span class="dl">"</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth/login</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">UserController.login</span><span class="dl">"</span><span class="p">)</span>
+
+  <span class="nx">Route</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ProjectController.index</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ProjectController.create</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects/:id</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ProjectController.destroy</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">patch</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects/:id</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ProjectController.update</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">"</span><span class="s2">projects/:id/tasks</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">TaskController.create</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">"</span><span class="s2">projects/:id/tasks</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">TaskController.index</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+
+  <span class="nx">Route</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="dl">"</span><span class="s2">tasks/:id</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">TaskController.destroy</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">"</span><span class="s2">auth</span><span class="dl">"</span><span class="p">)</span>
+  <span class="nx">Route</span><span class="p">.</span><span class="nx">patch</span><span class="p">(</span><span class="dl">"</span><span class="s2">tasks/:id</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">TaskController.update</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">"</span><span class="s2">auth</span><span class="dl">"</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">prefix</span><span class="p">(</span><span class="dl">"</span><span class="s2">api</span><span class="dl">"</span><span class="p">)</span>
+</code></pre></div></div>
+<h2 id="database">
+<a class="anchor" href="#database" aria-hidden="true"><span class="octicon octicon-link"></span></a>Database</h2>
+<h3 id="setup-1">
+<a class="anchor" href="#setup-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h3>
+<p>By default the database is configured to be sqlite. To change this, there is a line in the config/database.js file where you can change the sqlite to another provider.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nx">connection</span><span class="p">:</span> <span class="nx">Env</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">DB_CONNECTION</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">sqlite</span><span class="dl">'</span><span class="p">),</span>
+</code></pre></div></div>
+
+<p>Whichever provider you choose, you need to install the nodejs driver for it via npm/yarn. I believe you can omit the –save, as it’s a default flag.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install sqlite3 --save
+</code></pre></div></div>
+<h3 id="migrations">
+<a class="anchor" href="#migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Migrations</h3>
+<p>Now that the database is selected and the driver is installed, we need to setup our database schema using migration scripts.</p>
+
+<p>You can find a default user table defined in database/migrations/somenumber_user.js</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/** @type {import('@adonisjs/lucid/src/Schema')} */</span>
+<span class="kd">const</span> <span class="nx">Schema</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Schema</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">UserSchema</span> <span class="kd">extends</span> <span class="nx">Schema</span> <span class="p">{</span>
+  <span class="nx">up</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="dl">'</span><span class="s1">users</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">table</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">increments</span><span class="p">()</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="dl">'</span><span class="s1">username</span><span class="dl">'</span><span class="p">,</span> <span class="mi">80</span><span class="p">).</span><span class="nx">notNullable</span><span class="p">().</span><span class="nx">unique</span><span class="p">()</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="dl">'</span><span class="s1">email</span><span class="dl">'</span><span class="p">,</span> <span class="mi">254</span><span class="p">).</span><span class="nx">notNullable</span><span class="p">().</span><span class="nx">unique</span><span class="p">()</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="dl">'</span><span class="s1">password</span><span class="dl">'</span><span class="p">,</span> <span class="mi">60</span><span class="p">).</span><span class="nx">notNullable</span><span class="p">()</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">timestamps</span><span class="p">()</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+
+  <span class="nx">down</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">drop</span><span class="p">(</span><span class="dl">'</span><span class="s1">users</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserSchema</span>
+</code></pre></div></div>
+<p>Another example from the project schema created in the tutorial to show how to reference fields in another value.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/** @type {import('@adonisjs/lucid/src/Schema')} */</span>
+<span class="kd">const</span> <span class="nx">Schema</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Schema</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">ProjectSchema</span> <span class="kd">extends</span> <span class="nx">Schema</span> <span class="p">{</span>
+  <span class="nx">up</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">table</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">increments</span><span class="p">()</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">integer</span><span class="p">(</span><span class="dl">'</span><span class="s1">user_id</span><span class="dl">'</span><span class="p">).</span><span class="nx">unsigned</span><span class="p">().</span><span class="nx">references</span><span class="p">(</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">).</span><span class="nx">inTable</span><span class="p">(</span><span class="dl">'</span><span class="s1">users</span><span class="dl">'</span><span class="p">)</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">string</span><span class="p">(</span><span class="dl">'</span><span class="s1">title</span><span class="dl">'</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+      <span class="nx">table</span><span class="p">.</span><span class="nx">timestamps</span><span class="p">()</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+
+  <span class="nx">down</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">drop</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">ProjectSchema</span>
+</code></pre></div></div>
+
+<p>Once you define a few of your database schemas in the migration scripts, you can generate the database tables by running.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adonis migration:run
+</code></pre></div></div>
+<p>If you ever need to drop the database and recreate from scratch you can run</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adonis migration:refresh
+</code></pre></div></div>
+<p>Now that the database schema is generated in the database, we need a way to access the data.</p>
+<h3 id="lucid-models">
+<a class="anchor" href="#lucid-models" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lucid Models</h3>
+<p>Adonis.js uses something called Lucid ORM(Object-Relational Mapping) which creates a class-like interface for database content.</p>
+
+<p>The User model default configuration is shown below. The only real things to note is the hook definition for hashing the password before adding it to the database and how the tokens() method is defined.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */</span>
+<span class="kd">const</span> <span class="nx">Model</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Model</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="cm">/** @type {import('@adonisjs/framework/src/Hash')} */</span>
+<span class="kd">const</span> <span class="nx">Hash</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Hash</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">User</span> <span class="kd">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="nx">boot</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">.</span><span class="nx">boot</span><span class="p">()</span>
+
+    <span class="cm">/**
+     * A hook to hash the user password before saving
+     * it to the database.
+     */</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="dl">'</span><span class="s1">beforeSave</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">userInstance</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">userInstance</span><span class="p">.</span><span class="nx">dirty</span><span class="p">.</span><span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">userInstance</span><span class="p">.</span><span class="nx">password</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">Hash</span><span class="p">.</span><span class="nx">make</span><span class="p">(</span><span class="nx">userInstance</span><span class="p">.</span><span class="nx">password</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * A relationship on tokens is required for auth to
+   * work. Since features like `refreshTokens` or
+   * `rememberToken` will be saved inside the
+   * tokens table.
+   *
+   * @method tokens
+   *
+   * @return {Object}
+   */</span>
+  <span class="nx">tokens</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="dl">'</span><span class="s1">App/Models/Token</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">User</span>
+</code></pre></div></div>
+
+<p>The configuration built in the tutorial for the projects model is much simpler</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */</span>
+<span class="kd">const</span> <span class="nx">Model</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Model</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">Project</span> <span class="kd">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+    <span class="nx">user</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="dl">"</span><span class="s2">App/Models/User</span><span class="dl">"</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">tasks</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="dl">"</span><span class="s2">App/Models/Task</span><span class="dl">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Project</span>
+</code></pre></div></div>
+
+<p>We can see the different ways we interact with the Lucid ORM models here in our ProjectController.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="kd">const</span> <span class="nx">Project</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">App/Models/Project</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">AuthService</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">App/Services/AuthorizationService</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nx">ProjectController</span> <span class="p">{</span>
+    <span class="k">async</span> <span class="nx">index</span><span class="p">({</span><span class="nx">auth</span><span class="p">})</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">();</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nx">user</span><span class="p">.</span><span class="nx">projects</span><span class="p">().</span><span class="nx">fetch</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">async</span> <span class="nx">create</span><span class="p">({</span><span class="nx">request</span><span class="p">,</span> <span class="nx">auth</span><span class="p">})</span> <span class="p">{</span>
+        <span class="c1">//Authenticating with our token</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">();</span>
+        <span class="c1">//Object deconstruction to get the title of hte project</span>
+        <span class="kd">const</span> <span class="p">{</span><span class="nx">title</span><span class="p">}</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+        <span class="c1">//There are 3 ways we can do this in a way that associates the project with the user.</span>
+        <span class="cm">/* 1. Use the constructor and give it the user_id manually.
+        const project = await Project.create({
+            user_id: user.id,
+            title
+        })
+         * */</span>
+        <span class="cm">/* Use project.fill({}) or project.title="something" on a new project object
+         * const project = new Project();
+         project.title = "Hello world"
+         * or
+         project.fill({
+            title
+         })
+
+         Then save it with await user.projects().save(project);
+         */</span>
+        <span class="kd">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Project</span><span class="p">();</span>
+        <span class="nx">project</span><span class="p">.</span><span class="nx">fill</span><span class="p">({</span>
+            <span class="nx">title</span>
+        <span class="p">});</span>
+        <span class="c1">//Then saving it to associate it with the user</span>
+        <span class="k">await</span> <span class="nx">user</span><span class="p">.</span><span class="nx">projects</span><span class="p">().</span><span class="nx">save</span><span class="p">(</span><span class="nx">project</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">project</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">//Adding params to the input object gives us the query parameters from the route.</span>
+    <span class="k">async</span> <span class="nx">destroy</span><span class="p">({</span><span class="nx">response</span><span class="p">,</span> <span class="nx">auth</span><span class="p">,</span> <span class="nx">params</span><span class="p">})</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">();</span>
+        <span class="kd">const</span> <span class="p">{</span> <span class="nx">id</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">params</span><span class="p">;</span>
+
+        <span class="c1">// Will return us the project model if it exists</span>
+        <span class="kd">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">Project</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+        <span class="c1">//Ensure the user that is auth'd is the owner of the project.</span>
+        <span class="nx">AuthService</span><span class="p">.</span><span class="nx">verifyPermission</span><span class="p">(</span><span class="nx">project</span><span class="p">,</span> <span class="nx">user</span><span class="p">);</span>
+
+        <span class="k">await</span> <span class="nx">project</span><span class="p">.</span><span class="k">delete</span><span class="p">();</span>
+        <span class="c1">// return response.status(403);</span>
+        <span class="k">return</span> <span class="nx">project</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">async</span> <span class="nx">update</span><span class="p">({</span><span class="nx">auth</span><span class="p">,</span> <span class="nx">params</span><span class="p">,</span> <span class="nx">request</span><span class="p">})</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">();</span>
+        <span class="kd">const</span> <span class="p">{</span> <span class="nx">id</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">params</span><span class="p">;</span>
+        <span class="kd">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">Project</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+        <span class="nx">AuthService</span><span class="p">.</span><span class="nx">verifyPermission</span><span class="p">(</span><span class="nx">project</span><span class="p">,</span><span class="nx">user</span><span class="p">);</span>
+
+        <span class="nx">project</span><span class="p">.</span><span class="nx">merge</span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">only</span><span class="p">(</span><span class="dl">'</span><span class="s1">title</span><span class="dl">'</span><span class="p">))</span>
+        <span class="k">await</span> <span class="nx">project</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+        <span class="k">return</span> <span class="nx">project</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">ProjectController</span>
+</code></pre></div></div>
+
+<h2 id="authentication">
+<a class="anchor" href="#authentication" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authentication</h2>
+<p>Authentication in Adonis is really simple. Similar to the database configuration, we choose an auth provider in config/auth.js.</p>
+
+<p>Below you can see a trimmed down verison of the default configuration where we are using jwt tokens and the jwt object associates that with the lucid orm. Adonis also provides various other auth schemes and even social authentication so you don’t need things like firebase auth.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span>
+
+<span class="cm">/** @type {import('@adonisjs/framework/src/Env')} */</span>
+<span class="kd">const</span> <span class="nx">Env</span> <span class="o">=</span> <span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">Env</span><span class="dl">'</span><span class="p">)</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">authenticator</span><span class="p">:</span> <span class="dl">'</span><span class="s1">jwt</span><span class="dl">'</span><span class="p">,</span>
+
+  <span class="na">jwt</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">serializer</span><span class="p">:</span> <span class="dl">'</span><span class="s1">lucid</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">model</span><span class="p">:</span> <span class="dl">'</span><span class="s1">App/Models/User</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">scheme</span><span class="p">:</span> <span class="dl">'</span><span class="s1">jwt</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">uid</span><span class="p">:</span> <span class="dl">'</span><span class="s1">email</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">password</span><span class="p">:</span> <span class="dl">'</span><span class="s1">password</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">options</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">secret</span><span class="p">:</span> <span class="nx">Env</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">APP_KEY</span><span class="dl">'</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+</code></pre></div></div>
+
+<p>To use the authentication we can refer back to the UserController.login method where we pass the auth object in with the request, and attempt authentication.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="nx">login</span><span class="p">({</span><span class="nx">request</span><span class="p">,</span> <span class="nx">auth</span><span class="p">})</span> <span class="p">{</span>
+    <span class="c1">// request.all groups together all the request parameters, then we use object deconstruction to get the necessary items</span>
+    <span class="kd">const</span> <span class="p">{</span><span class="nx">email</span><span class="p">,</span> <span class="nx">password</span><span class="p">}</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+    <span class="c1">//Auth attempt</span>
+    <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">attempt</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span> <span class="nx">password</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">token</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then every route that needed authentication we defined the route with the auth middleware</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">Route</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ProjectController.index</span><span class="dl">"</span><span class="p">).</span><span class="nx">middleware</span><span class="p">(</span><span class="dl">'</span><span class="s1">auth</span><span class="dl">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Below is an example from the ProjectController.index method where we pass in the auth object and get the user specific model from the database.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="nx">index</span><span class="p">({</span><span class="nx">auth</span><span class="p">})</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">();</span>
+  <span class="k">return</span> <span class="k">await</span> <span class="nx">user</span><span class="p">.</span><span class="nx">projects</span><span class="p">().</span><span class="nx">fetch</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="testing-the-api-with-postman">
+<a class="anchor" href="#testing-the-api-with-postman" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing the API with Postman</h2>
+<p>The last thing about the backend to note, is perhaps one of the most important. Testing your API is something you do from the first route configuration, so having a good tool to use is imperative.</p>
+
+<p>Postman is a fantastic tool for doing API testing that even if I don’t use the web technologies in this tutorial ever again, I’ll certainly keep postman around for the future.</p>
+
+<p>Here is a general overview of what postman looks like
+<img src="images/postman/postman.png" alt="postman overview"></p>
+
+<p>The key features I wanted to show from postman were</p>
+<ul>
+  <li>Collections / folders</li>
+  <li>Creating a request</li>
+  <li>Environments</li>
+  <li>Test scripts</li>
+</ul>
+
+<h3 id="collections--folders">
+<a class="anchor" href="#collections--folders" aria-hidden="true"><span class="octicon octicon-link"></span></a>Collections &amp; Folders</h3>
+<p>As you can see on the left, we have a collections tab where we can define groups of requests and subdivide them into their own folders. This is a fantastic way to organize your projects. To create a folder, simple right click on the collection and select “create folder”.</p>
+
+<p><img src="images/postman/postman-collections.png" alt="postman collection"></p>
+
+<h3 id="creating-a-request">
+<a class="anchor" href="#creating-a-request" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a request</h3>
+<p>To create a request in the subfolder or collection, you can either click on the + button in the middle of the screen shown in the first screenshot, or right click on the collection/folder and select “create a request”.</p>
+
+<p>From there it’s simple to define what type of request it is, the body, headers, etc.</p>
+
+<p>when you’re finished, you can save it to the specific collection/folder and even write a description on the request.</p>
+
+<h3 id="environments">
+<a class="anchor" href="#environments" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environments</h3>
+<p>Environments are one of the coolest things in Postman that I surprisingly didn’t see in other REST client extensions I had on my browser. Basically what they do is allow you to define global variables for use in the selected environment.</p>
+
+<p>You can create an environment by selecting the environment button on the top right, creating one and defining variables in the pop-up screen below.
+<img src="images/postman/postman-environment.png" alt="environment"></p>
+
+<p>Once you’ve defined your variables, you can access them anywhere in your requests using handlebar style expressions . In the below screenshot you can see we’ve substituted both the server address, the email, and password with our environmental variables.</p>
+
+<p><img src="images/postman/postman-variables.png" alt="environmental variables"></p>
+
+<h3 id="test-scripts">
+<a class="anchor" href="#test-scripts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test scripts</h3>
+<p>This is something not covered in the tutorial, but something I found fascinating is that you can define pre &amp; post request scripts to run. I imagine this is used often for response validation, but I found few other uses for it</p>
+
+<ul>
+  <li>Setting the token after users login to manage multiple users</li>
+  <li>Changing project &amp; task IDs after index / create requests</li>
+</ul>
+
+<p>This is all done in the Tests tab on the request.</p>
+
+<p><img src="images/postman/postman-scripts.png" alt="scripts"></p>
+
+<h1 id="frontend-development">
+<a class="anchor" href="#frontend-development" aria-hidden="true"><span class="octicon octicon-link"></span></a>Frontend Development</h1>
+<p>I’m probably not going to go into as much depth as was necessary on the backend, I’m just going to touch on some of the key topics that I might forget in the future.</p>
+
+<p>Topics I will cover</p>
+<ul>
+  <li>Setup</li>
+  <li>Components</li>
+  <li>Routing / views</li>
+  <li>Vuex store</li>
+  <li>Differences &amp; problems I encountered</li>
+</ul>
+
+<h2 id="setup-2">
+<a class="anchor" href="#setup-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<h3 id="installation-1">
+<a class="anchor" href="#installation-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+<p>The vue documentation suggests installing their official CLI, but most enthusiasts seem to be switching to Vite.</p>
+
+<p>I used their CLI for this project and installed it globally</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install -g @vue/cli
+</code></pre></div></div>
+
+<p>Then to create the project we use the CLI binary and select Vue 3 preview as our preset</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vue create client
+</code></pre></div></div>
+
+<p>At this point, we’re able to launch the dev server from within the client folder which will allow for hot reloading(changes are seen live).</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run serve
+</code></pre></div></div>
+
+<p>Now with the project scaffolded out, we can install our various frontend dependencies</p>
+<h3 id="installing-dependencies">
+<a class="anchor" href="#installing-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installing dependencies</h3>
+<p>Our project uses the following depdencies</p>
+
+<ul>
+  <li>vuex - State management</li>
+  <li>vue-router - Frontend routing</li>
+  <li>vuex-persistedstate - Allows the vuex state to be saved to the client, great for login tokens.</li>
+  <li>vuex-router-sync - Syncs the router with vuex so you can access the current route from the store. Not sure why this is terribly useful yet.</li>
+  <li>axios - For HTTP requests from the client</li>
+  <li>primevue - The choosen frontend component library</li>
+  <li>primeflex - Flexbox css stuff for primevue</li>
+  <li>
+<del>primeicons</del> - Primeface’s official icon library, I tried this and it was a bit too limited in selection.</li>
+  <li>
+<del>lodash</del> - They included this dependency but I don’t remember ever using it.</li>
+</ul>
+
+<p>Later I included material icons stylesheet in the index.html header, but you can probably install that here too.</p>
+
+<p>To install all of these depdencies you can just run this in your client folder.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install vuex-persistedstate vuex-router-sync axios primevue primeflex
+vue add vuex
+vue add vue-router
+</code></pre></div></div>
+
+<h3 id="setting-up-vuex">
+<a class="anchor" href="#setting-up-vuex" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up vuex</h3>
+<p>If we installed vuex from vue-cli, then it should have auto-generated a folder src/store with a file called index.js inside of it. It’s also already setup</p>
+
+<p>The only thing we’ve really changed is we are using vuex in strict mode, which doesn’t allow code outside of our mutations to alter our Vuex state. This allows for easier debugging.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">createStore</span><span class="p">({</span>
+  <span class="na">strict</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">mutations</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">modules</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<h3 id="setting-up-vuex-persistedstate">
+<a class="anchor" href="#setting-up-vuex-persistedstate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up vuex-persistedstate</h3>
+<p>In order to setup vuex-persistedstate we need to modify our vuex store index file under src/store/index.js</p>
+
+<p>Setup is simple by just importing it and adding it to our plugins property of our base store.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">createPersistedState</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex-persistedstate</span><span class="dl">'</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">createStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">createStore</span><span class="p">({</span>
+  <span class="na">strict</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">mutations</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">modules</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">plugins</span><span class="p">:</span> <span class="p">[</span>
+    <span class="nx">createPersistedState</span><span class="p">()</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+</code></pre></div></div>
+<p>Note, during development it might be better to disable persisted state.</p>
+
+<h3 id="vuex-router-sync">
+<a class="anchor" href="#vuex-router-sync" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vuex-router-sync</h3>
+<p>Vuex-router-sync is quick to setup. We just need to add two lines to our src/main.js. Add these two lines before creating the app and doing .use(router), and we’re golden.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Import vuex-router-sync</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">sync</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex-router-sync</span><span class="dl">'</span>
+<span class="c1">//Syncs the store with the router</span>
+<span class="nx">sync</span><span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">router</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="axios">
+<a class="anchor" href="#axios" aria-hidden="true"><span class="octicon octicon-link"></span></a>Axios</h3>
+<p>In order to make web requests, we need to define our base Axios object.</p>
+
+<p>So we created a file in the root server directory called http.js which uses the store to grab the baseURL &amp; the auth token.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">axios</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">axios</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">store</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./store/</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="p">()</span>  <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+        <span class="na">baseURL</span><span class="p">:</span> <span class="nx">store</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">baseURL</span><span class="p">,</span>
+        <span class="na">timeout</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span>
+        <span class="na">headers</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">Authorization</span><span class="p">:</span> <span class="s2">`Bearer </span><span class="p">${</span><span class="nx">store</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">authentication</span><span class="p">.</span><span class="nx">token</span><span class="p">}</span><span class="s2">`</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="setting-up-primevue">
+<a class="anchor" href="#setting-up-primevue" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up primevue</h3>
+<p>First we need to tell Vue to use Primevue for components, and we can do that by editing src/main.js</p>
+
+<p>Our final main.js looks like this.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createApp</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vue</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">App</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./App.vue</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">router</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./router</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">store</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./store</span><span class="dl">'</span>
+
+<span class="c1">//Import vuex-router-sync</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">sync</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex-router-sync</span><span class="dl">'</span>
+<span class="c1">//Import PrimeVue to use</span>
+<span class="k">import</span> <span class="nx">PrimeVue</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/config</span><span class="dl">"</span>
+
+<span class="c1">//Syncs the store with the router</span>
+<span class="nx">sync</span><span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">router</span><span class="p">);</span>
+
+<span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">).</span><span class="nx">use</span><span class="p">(</span><span class="nx">store</span><span class="p">).</span><span class="nx">use</span><span class="p">(</span><span class="nx">router</span><span class="p">).</span><span class="nx">use</span><span class="p">(</span><span class="nx">PrimeVue</span><span class="p">).</span><span class="nx">mount</span><span class="p">(</span><span class="dl">'</span><span class="s1">#app</span><span class="dl">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Then in order to actually use primevue css, we need to import it somewhere and since App.vue is our root component, it’s a fantastic place. So in the script section of App.vue</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="dl">"</span><span class="s2">primevue/resources/themes/vela-blue/theme.css</span><span class="dl">"</span>
+<span class="k">import</span> <span class="dl">"</span><span class="s2">primevue/resources/primevue.min.css</span><span class="dl">"</span>
+<span class="k">import</span> <span class="dl">"</span><span class="s2">primeflex/primeflex.css</span><span class="dl">"</span>
+</code></pre></div></div>
+
+<p>Then I also set the background color of the body in the css section of the App.vue to match the theme</p>
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">body</span> <span class="p">{</span>
+  <span class="nl">background-color</span><span class="p">:</span> <span class="n">var</span><span class="p">(</span><span class="n">--surface-b</span><span class="p">);</span>
+  <span class="nl">color</span><span class="p">:</span> <span class="n">var</span><span class="p">(</span><span class="n">--text-color</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nf">#app</span> <span class="p">{</span>
+  <span class="nl">font-family</span><span class="p">:</span> <span class="n">Avenir</span><span class="p">,</span> <span class="n">Helvetica</span><span class="p">,</span> <span class="n">Arial</span><span class="p">,</span> <span class="nb">sans-serif</span><span class="p">;</span>
+  <span class="nl">-webkit-font-smoothing</span><span class="p">:</span> <span class="n">antialiased</span><span class="p">;</span>
+  <span class="nl">-moz-osx-font-smoothing</span><span class="p">:</span> <span class="n">grayscale</span><span class="p">;</span>
+  <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="proxying-our-requests-to-our-adonis-dev-server">
+<a class="anchor" href="#proxying-our-requests-to-our-adonis-dev-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Proxying our requests to our adonis dev server</h3>
+<p>In order to code our requests as they would be on the live server, we need to create a proxy to our adonis dev server.</p>
+
+<p>To do this we need to create a file in our root client directory called “vue.config.js” and define our target like this.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">devServer</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">proxy</span><span class="p">:</span> <span class="p">{</span>
+            <span class="dl">'</span><span class="s1">/api</span><span class="dl">'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">target</span><span class="p">:</span> <span class="dl">'</span><span class="s1">http://localhost:3333</span><span class="dl">'</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Now all requests from our axios requests that start with /api will proxy to the adonis server as long as our environment is set to development.</p>
+
+<h2 id="components">
+<a class="anchor" href="#components" aria-hidden="true"><span class="octicon octicon-link"></span></a>Components</h2>
+<p>Components are the heart and soul of Vue.js. They can be thought of as the complete encapsulation of the logic, styling, and templating of any object in your webpage. I <a href="https://v3.vuejs.org/guide/component-basics.html">highly suggest reading up on them</a> if you’re not familiar, because you will be <strong>lost</strong> if you don’t.</p>
+
+<p>Projects scaffolded out using the Vue CLI will often use single file components with a structure like this. Where the template tags contain HTML, script contains the javascript logic and lifecycle hooks, and the style tags define css relative to this component.</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;template&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"something"</span><span class="nt">&gt;</span>
+    Hello world
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+
+<span class="nt">&lt;style&gt;</span>
+<span class="nc">.something</span> <span class="p">{</span>
+  <span class="nl">color</span><span class="p">:</span> <span class="no">blue</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+</code></pre></div></div>
+
+<p>A minimalistic example of a real component we used in our project is the CreateRecord component.</p>
+
+<p>This component</p>
+<ul>
+  <li>Is composed of multiple sub-components</li>
+  <li>Emits events based on actions we defined.</li>
+  <li>Defines ‘props’ which is data we can pass to the component at time of creation.</li>
+  <li>Can be reused anywhere in our application and is used in both the Projects &amp; Tasks panels.</li>
+</ul>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;template&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"p-grid"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;InputText</span>
+            <span class="na">:placeholder=</span><span class="s">"placeholder"</span> 
+            <span class="err">@</span><span class="na">update:model-value=</span><span class="s">"$emit('input', $event)"</span>
+            <span class="na">:value=</span><span class="s">"value"</span>
+            <span class="err">@</span><span class="na">keyup.enter=</span><span class="s">"$emit('create')"</span>
+            <span class="na">class=</span><span class="s">"p-inputtext-lg p-col"</span> 
+            <span class="na">:disabled=</span><span class="s">"disabled"</span>
+        <span class="nt">/&gt;</span>
+        <span class="nt">&lt;Button</span> 
+        <span class="na">class=</span><span class="s">"p-col-fixed p-ml-2"</span> 
+        <span class="na">style=</span><span class="s">"width: 90px;"</span>
+        <span class="err">@</span><span class="na">click=</span><span class="s">"$emit('create')"</span>
+        <span class="na">:disabled=</span><span class="s">"disabled"</span>
+        <span class="nt">&gt;</span>
+            <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"material-icons"</span> <span class="err">@</span><span class="na">click=</span><span class="s">"iclicked"</span><span class="nt">&gt;</span>add_circle<span class="nt">&lt;/i&gt;</span>
+            Create
+        <span class="nt">&lt;/Button&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="k">import</span> <span class="nx">Button</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/button</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">InputText</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/inputtext</span><span class="dl">"</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">Button</span><span class="p">,</span>
+        <span class="nx">InputText</span>
+    <span class="p">},</span>
+    <span class="na">emits</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">input</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">create</span><span class="dl">'</span><span class="p">],</span>
+    <span class="na">props</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">placeholder</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+            <span class="na">required</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="na">value</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+            <span class="na">required</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="na">disabled</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="nb">Boolean</span><span class="p">,</span>
+            <span class="na">default</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>I could keep going on, but this is more of a brief overview.</p>
+<h2 id="routing--views">
+<a class="anchor" href="#routing--views" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routing &amp; Views</h2>
+<p>Earlier we installed a frontend router called “vue-router”. What frontend routers let us do is navigate our webpage without refreshing, which is extremely useful considering most single page applications are quite hefty.</p>
+
+<p>In order to create a page we can navigate to on the frontend, we define a component for it under the views/ directory. These are no different than any other component other than they get mounted in our App.vue in place of</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;router-view</span> <span class="nt">/&gt;</span>
+</code></pre></div></div>
+
+<p>An example view is our Projects.vue. Notice how concise this view is. We stuffed all of our logic in the sub-components project-panel and tasks-panel, so we have a much cleaner view component.</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;template&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"p-grid p-mt-4"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;project-panel</span> <span class="na">class=</span><span class="s">"p-col-4"</span><span class="nt">&gt;&lt;/project-panel&gt;</span>
+        <span class="nt">&lt;tasks-panel</span> <span class="na">class=</span><span class="s">"p-col-8"</span><span class="nt">&gt;&lt;/tasks-panel&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="k">import</span> <span class="nx">ProjectPanel</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../components/Projects.vue</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">TasksPanel</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../components/Tasks.vue</span><span class="dl">"</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">mapGetters</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">ProjectPanel</span><span class="p">,</span>
+        <span class="nx">TasksPanel</span>
+    <span class="p">},</span>
+    <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapGetters</span><span class="p">(</span><span class="dl">'</span><span class="s1">authentication</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">isLoggedIn</span><span class="dl">'</span>
+        <span class="p">])</span>
+    <span class="p">},</span>
+    <span class="nx">mounted</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLoggedIn</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>Now that we have a Projects.vue defined, in order to navigate to it we need to define the route in our router/index.js. The final router for this project ended up looking like this. Notice it lazy loading everything other than the root component.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createRouter</span><span class="p">,</span> <span class="nx">createWebHashHistory</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vue-router</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">Projects</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../views/Projects.vue</span><span class="dl">'</span>
+
+<span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Projects</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="nx">Projects</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/about</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">About</span><span class="dl">'</span><span class="p">,</span>
+    <span class="c1">// route level code-splitting</span>
+    <span class="c1">// this generates a separate chunk (about.[hash].js) for this route</span>
+    <span class="c1">// which is lazy-loaded when the route is visited.</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span><span class="p">(</span><span class="cm">/* webpackChunkName: "about" */</span> <span class="dl">'</span><span class="s1">../views/About.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/register</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Register</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span> <span class="p">(</span><span class="dl">'</span><span class="s1">../views/Register.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Login</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span> <span class="p">(</span><span class="dl">'</span><span class="s1">../views/Login.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="kd">const</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">createRouter</span><span class="p">({</span>
+  <span class="na">history</span><span class="p">:</span> <span class="nx">createWebHashHistory</span><span class="p">(),</span>
+  <span class="nx">routes</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span>
+</code></pre></div></div>
+
+<p>With both our view created and our route setup, in order to navigate to one of these routes we can either use router-links</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;router-link</span> <span class="na">to=</span><span class="s">"/"</span><span class="nt">&gt;</span>Some text<span class="nt">&lt;/router-link&gt;</span>
+</code></pre></div></div>
+<p>or we can push a route programatically</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">"</span><span class="s2">/</span><span class="dl">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We mostly use the latter since we’re navigating based on events. An example of this is in our Nav component we defined methods for our buttons to use as on click actions.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">mapGetters</span><span class="p">,</span> <span class="nx">mapActions</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">Toolbar</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/toolbar</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">Button</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/button</span><span class="dl">"</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">Toolbar</span><span class="p">,</span>
+        <span class="nx">Button</span>
+
+    <span class="p">},</span>
+    <span class="nx">data</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">{</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapGetters</span><span class="p">(</span><span class="dl">'</span><span class="s1">authentication</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">isLoggedIn</span><span class="dl">'</span>
+        <span class="p">]),</span>
+    <span class="p">},</span>
+    <span class="na">methods</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapActions</span><span class="p">(</span><span class="dl">'</span><span class="s1">authentication</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">logout</span><span class="dl">'</span>
+        <span class="p">]),</span>
+        <span class="nx">on_projects</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">"</span><span class="s2">/</span><span class="dl">"</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nx">on_register</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">"</span><span class="s2">/register</span><span class="dl">"</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nx">on_login</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">"</span><span class="s2">/login</span><span class="dl">"</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nx">open_video</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://www.youtube.com/watch?v=dfEZlcPvez8</span><span class="dl">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="vuex-store">
+<a class="anchor" href="#vuex-store" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vuex store</h2>
+<h3 id="overview-1">
+<a class="anchor" href="#overview-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h3>
+<p>So, vuex, or state management in general creates a synchronized central data store for all of the components and logic of the application to access.</p>
+
+<p>This allows us to</p>
+<ul>
+  <li>Centralize our logic</li>
+  <li>Synchronize multiple fields to one value</li>
+  <li>Live track other components</li>
+  <li>Cache hella data</li>
+</ul>
+
+<h3 id="creating-a-store--store-anatomy">
+<a class="anchor" href="#creating-a-store--store-anatomy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a store &amp; store anatomy</h3>
+<p>By default, when we install vuex from the Vue CLI (not npm), it creates src/store/index.js as a default store file. We’ve already added persisted-state to it, but let’s talk about the anatomy of this real quick.</p>
+
+<p>Each store may contain</p>
+<ul>
+  <li>state - The truth / value of the objects</li>
+  <li>mutations - Synchronous methods defined that are allowed to alter the state values</li>
+  <li>actions - Methods that may be asynchronous that perform actions, which are sometimes groups of mutations &amp; asynchronous calls to the web. Think of this as the primary logic methods.</li>
+  <li>getters - Get methods for retrieving the state or a value based on the state.</li>
+  <li>modules - nested stores</li>
+</ul>
+
+<p>An example that shows off most of thes concepts is our authentication.js module. A note, by passing namespaced: true, all of the method and objects are namespaced to store.authentication.state.stuff</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">HTTP</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@/http</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">router</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../router</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">namespaced</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="na">state</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">registerEmail</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+        <span class="na">registerPassword</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+        <span class="na">registerError</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="na">token</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="na">loginEmail</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+        <span class="na">loginPassword</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+        <span class="na">loginError</span><span class="p">:</span> <span class="kc">null</span>
+    <span class="p">},</span>
+    <span class="na">mutations</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">setRegisterEmail</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">email</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">registerEmail</span> <span class="o">=</span> <span class="nx">email</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setRegisterPassword</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">registerPassword</span> <span class="o">=</span> <span class="nx">password</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setToken</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">token</span> <span class="o">=</span> <span class="nx">token</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setRegisterError</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">registerError</span> <span class="o">=</span> <span class="nx">error</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setLoginEmail</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">email</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">loginEmail</span> <span class="o">=</span> <span class="nx">email</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setLoginPassword</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">loginPassword</span> <span class="o">=</span> <span class="nx">password</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="nx">setLoginError</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">.</span><span class="nx">loginError</span> <span class="o">=</span> <span class="nx">error</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">getters</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">isLoggedIn</span><span class="p">(</span><span class="nx">state</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="o">!!</span><span class="nx">state</span><span class="p">.</span><span class="nx">token</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">register</span><span class="p">({</span> <span class="nx">commit</span><span class="p">,</span> <span class="nx">state</span> <span class="p">})</span> <span class="p">{</span>
+            <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setRegisterError</span><span class="dl">'</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">HTTP</span><span class="p">().</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/api/auth/register</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+                <span class="na">email</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">registerEmail</span><span class="p">,</span>
+                <span class="na">password</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">registerPassword</span>
+            <span class="p">}).</span><span class="nx">then</span><span class="p">(({</span><span class="nx">data</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setToken</span><span class="dl">'</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">token</span><span class="p">);</span>
+                <span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">);</span>
+
+            <span class="p">}).</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setRegisterError</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">An error has occured trying to create your account.</span><span class="dl">'</span><span class="p">);</span>
+            <span class="p">})</span>
+        <span class="p">},</span>
+        <span class="nx">logout</span><span class="p">({</span><span class="nx">commit</span><span class="p">})</span> <span class="p">{</span>
+            <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setToken</span><span class="dl">'</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+            <span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">"</span><span class="s2">/login</span><span class="dl">"</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nx">login</span><span class="p">({</span><span class="nx">state</span><span class="p">,</span> <span class="nx">commit</span><span class="p">})</span> <span class="p">{</span>
+            <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setLoginError</span><span class="dl">'</span><span class="p">,</span> <span class="kc">null</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nx">HTTP</span><span class="p">().</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/api/auth/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+                <span class="na">email</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">loginEmail</span><span class="p">,</span> 
+                <span class="na">password</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">loginPassword</span>
+            <span class="p">}).</span><span class="nx">then</span><span class="p">(({</span><span class="nx">data</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setToken</span><span class="dl">'</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">token</span><span class="p">)</span>
+                <span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">)</span>
+            <span class="p">}).</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="nx">commit</span><span class="p">(</span><span class="dl">'</span><span class="s1">setLoginError</span><span class="dl">'</span><span class="p">,</span> <span class="dl">"</span><span class="s2">An error occured while logging in.</span><span class="dl">"</span><span class="p">)</span>
+            <span class="p">})</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then to register the modules, we do so in the root store, index.js</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">createPersistedState</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex-persistedstate</span><span class="dl">'</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">createStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">authentication</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./authentication</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">projects</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./projects</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">tasks</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./tasks</span><span class="dl">"</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">createStore</span><span class="p">({</span>
+  <span class="na">strict</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">baseUrl</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/api</span><span class="dl">'</span>
+  <span class="p">},</span>
+  <span class="na">mutations</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+  <span class="p">},</span>
+  <span class="na">modules</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">authentication</span><span class="p">,</span>
+    <span class="nx">projects</span><span class="p">,</span>
+    <span class="nx">tasks</span>
+  <span class="p">},</span>
+  <span class="na">plugins</span><span class="p">:</span> <span class="p">[</span>
+    <span class="nx">createPersistedState</span><span class="p">()</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+</code></pre></div></div>
+<h3 id="accessing-the-store">
+<a class="anchor" href="#accessing-the-store" aria-hidden="true"><span class="octicon octicon-link"></span></a>Accessing the store</h3>
+<p>Accessing the store is typically done in the script area of components. Vuex contains a bunch of helper methods you can import and use to map the vuex methods and values to our components. You can see this in our Projects.vue panel component.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">Panel</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">primevue/panel</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">EditableRecord</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./EditableRecord</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">CreateRecord</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./CreateRecord</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">mapState</span><span class="p">,</span> <span class="nx">mapMutations</span><span class="p">,</span> <span class="nx">mapActions</span><span class="p">,</span> <span class="nx">mapGetters</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">Panel</span><span class="p">,</span>
+        <span class="nx">EditableRecord</span><span class="p">,</span>
+        <span class="nx">CreateRecord</span>
+    <span class="p">},</span>
+    <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapState</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">newProjectName</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">activeProjectID</span><span class="dl">'</span>
+        <span class="p">]),</span>
+        <span class="p">...</span><span class="nx">mapGetters</span><span class="p">(</span><span class="dl">'</span><span class="s1">authentication</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">isLoggedIn</span><span class="dl">'</span>
+        <span class="p">])</span>
+    <span class="p">},</span>
+    <span class="na">methods</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapMutations</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">setNewProjectName</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">updateRecordTitle</span><span class="dl">'</span>
+        <span class="p">]),</span>
+        <span class="p">...</span><span class="nx">mapActions</span><span class="p">(</span><span class="dl">'</span><span class="s1">projects</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">createProject</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">getProjects</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">deleteProject</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">saveProjectName</span><span class="dl">'</span><span class="p">,</span>
+            <span class="dl">'</span><span class="s1">selectProject</span><span class="dl">'</span>
+        <span class="p">])</span>
+    <span class="p">},</span>
+    <span class="nx">mounted</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isLoggedIn</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">getProjects</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h2 id="differences--challenges-i-encountered">
+<a class="anchor" href="#differences--challenges-i-encountered" aria-hidden="true"><span class="octicon octicon-link"></span></a>Differences &amp; challenges I encountered</h2>
+<p>I encountered a few differences between the tutorial and my own code. Mostly because of Vue 3.0 is a bit different and I’m using a different component library.</p>
+
+<h3 id="text-fields">
+<a class="anchor" href="#text-fields" aria-hidden="true"><span class="octicon octicon-link"></span></a>Text Fields</h3>
+<p>In the tutorial, he got away with being able to use the @input event mapping with vuetify text fields</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;v-text-field</span>
+  <span class="na">autofocus</span>
+  <span class="na">v-if=</span><span class="s">"isEditMode"</span>
+  <span class="na">:value=</span><span class="s">"title"</span>
+  <span class="err">@</span><span class="na">keyup.enter=</span><span class="s">"$emit('onSave')"</span>
+  <span class="err">@</span><span class="na">input=</span><span class="s">"$emit('onInput', $event)"</span>
+<span class="nt">&gt;&lt;/v-text-field&gt;</span>
+</code></pre></div></div>
+<p>However this didn’t work for whatever reason with the PrimeVue InputText component. I thought it would work regardless because I was under the impression that events were passed to the root element of a component if you don’t define them, but perhaps I am wrong or we were overwriting some important event.</p>
+
+<p>So I checked the source from their github to see what might be happening</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;template&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">:class=</span><span class="s">"['p-inputtext p-component', {'p-filled': filled}]"</span> <span class="na">:value=</span><span class="s">"modelValue"</span> <span class="err">@</span><span class="na">input=</span><span class="s">"onInput"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">emits</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">update:modelValue</span><span class="dl">'</span><span class="p">],</span>
+    <span class="na">props</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">modelValue</span><span class="p">:</span> <span class="kc">null</span>
+    <span class="p">},</span>
+    <span class="na">methods</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">onInput</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$emit</span><span class="p">(</span><span class="dl">'</span><span class="s1">update:modelValue</span><span class="dl">'</span><span class="p">,</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">filled</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">modelValue</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">modelValue</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+<p>It looks like they don’t propagate the @input event and instead they implemented it with the expectation we’d be using the two way data binding provided by v-model. I don’t think that’s a good fit for use with vuex because we’re not allowed to change the state outside of mutations….</p>
+
+<p>So instead we hooked into the event they do propagate.</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;InputText</span>
+    <span class="na">:placeholder=</span><span class="s">"placeholder"</span> 
+    <span class="err">@</span><span class="na">update:model-value=</span><span class="s">"$emit('input', $event)"</span>
+    <span class="na">:value=</span><span class="s">"value"</span>
+    <span class="err">@</span><span class="na">keyup.enter=</span><span class="s">"$emit('create')"</span>
+    <span class="na">class=</span><span class="s">"p-inputtext-lg p-col"</span> 
+    <span class="na">:disabled=</span><span class="s">"disabled"</span>
+<span class="nt">/&gt;</span>
+</code></pre></div></div>
+
+<h3 id="panel">
+<a class="anchor" href="#panel" aria-hidden="true"><span class="octicon octicon-link"></span></a>Panel</h3>
+<p>In the tutorial video they created their own panel component since Vuetify didn’t have one out of the box. However, PrimeVue does and I’m not a fan of extra work lol. So we just skipped this.</p>
+
+<h3 id="infinite-recursion-bug">
+<a class="anchor" href="#infinite-recursion-bug" aria-hidden="true"><span class="octicon octicon-link"></span></a>Infinite recursion bug?</h3>
+<p>In the tutorial they used a component called Projects inside of their view called Projects. When I followed diligently I encountered an infinite loop breaking the page.</p>
+
+<p>Code that breaks the universe (Inside of src/views/Projects.vue)</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;template&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"p-grid p-mt-4"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;Projects</span> <span class="na">class=</span><span class="s">"p-col-4"</span><span class="nt">&gt;&lt;/Projects&gt;</span>
+        <span class="nt">&lt;tasks-panel</span> <span class="na">class=</span><span class="s">"p-col-8"</span><span class="nt">&gt;&lt;/tasks-panel&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="k">import</span> <span class="nx">Projects</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../components/Projects.vue</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">TasksPanel</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../components/Tasks.vue</span><span class="dl">"</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">mapGetters</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vuex</span><span class="dl">'</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">Projects</span><span class="p">,</span>
+        <span class="nx">TasksPanel</span>
+    <span class="p">},</span>
+    <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">...</span><span class="nx">mapGetters</span><span class="p">(</span><span class="dl">'</span><span class="s1">authentication</span><span class="dl">'</span><span class="p">,</span> <span class="p">[</span>
+            <span class="dl">'</span><span class="s1">isLoggedIn</span><span class="dl">'</span>
+        <span class="p">])</span>
+    <span class="p">},</span>
+    <span class="nx">mounted</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLoggedIn</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>Our routes.js</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createRouter</span><span class="p">,</span> <span class="nx">createWebHashHistory</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">vue-router</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">Projects</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../views/Projects.vue</span><span class="dl">'</span>
+
+<span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Projects</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="nx">Projects</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/about</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">About</span><span class="dl">'</span><span class="p">,</span>
+    <span class="c1">// route level code-splitting</span>
+    <span class="c1">// this generates a separate chunk (about.[hash].js) for this route</span>
+    <span class="c1">// which is lazy-loaded when the route is visited.</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span><span class="p">(</span><span class="cm">/* webpackChunkName: "about" */</span> <span class="dl">'</span><span class="s1">../views/About.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/register</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Register</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span> <span class="p">(</span><span class="dl">'</span><span class="s1">../views/Register.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Login</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">component</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">import</span> <span class="p">(</span><span class="dl">'</span><span class="s1">../views/Login.vue</span><span class="dl">'</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="kd">const</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">createRouter</span><span class="p">({</span>
+  <span class="na">history</span><span class="p">:</span> <span class="nx">createWebHashHistory</span><span class="p">(),</span>
+  <span class="nx">routes</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span>
+</code></pre></div></div>
+
+<p>My assumption is that either the Projects object we create in the import statement in routes.js is taking priority over the Projects object we import in the component or there is some sort of internal Vue object defined under the same name.</p>
+
+<p>In any case, I fixed it by just importing it in the component as ProjectPanel instead of Projects.</p>
+
+<h3 id="vueset">
+<a class="anchor" href="#vueset" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vue.set()</h3>
+<p>Vue3 doesn’t support Ie11, so we don’t need to use Vue.set since modern browsers can detect changes via proxies and we don’t need to explicitly tell vue to overwrite the getters and setters.</p>
+
+<p>This doesn’t impact things too much tutorial-wise, but we didn’t need to use Vue.set on the tasks to set completed and track it.</p>
+
+<h1 id="gluing-things-together">
+<a class="anchor" href="#gluing-things-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gluing things together</h1>
+<h2 id="building-the-frontend">
+<a class="anchor" href="#building-the-frontend" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building the frontend</h2>
+<p>In order to compress and package the frontend, we need to run the build script in our client directory. This will compile our frontend and stick the packaged version into the client/dist folder.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build
+</code></pre></div></div>
+
+<h2 id="serving-via-adonis">
+<a class="anchor" href="#serving-via-adonis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Serving via adonis</h2>
+<p>In order to serve this with adonis, we just need to copy all the files from the client/dist folder to our server/public folder.</p>
+
+<p>After that we need to tell adonis we want to serve the static folder public by enabling the static file middleware. This is done by uncommenting this line in the server/start/kernel.js file.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">serverMiddleware</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="c1">//'Adonis/Middleware/Static',</span>
+  <span class="dl">'</span><span class="s1">Adonis/Middleware/Cors</span><span class="dl">'</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p>Now we just edit our .env file to change our host to 0.0.0.0 so we allow all connections, our port to match whatever port we want to serve on, and our NODE_ENV to production.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HOST=0.0.0.0
+PORT=8080
+NODE_ENV=production
+APP_NAME=AdonisJs
+APP_URL=http://${HOST}:${PORT}
+CACHE_VIEWS=false
+APP_KEY=dHImA9BVBgQ5MXeyw2RZqoQdzNFMyZcP
+DB_CONNECTION=sqlite
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_DATABASE=adonis
+HASH_DRIVER=bcrypt
+</code></pre></div></div>
+
+<p>Now we just can call node on server.js in the server folder and our project is live.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node server.js
+</code></pre></div></div>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>Even though this was written as my notes and thoughts during the project, I hope someone finds it useful someday.</p>
+
+<p>Thanks for reading.</p>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/vue/primevue/webdev/2021/03/14/FirstCrudTODO.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
