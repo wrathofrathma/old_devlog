@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Hosting an Express.js server on Firebase functions | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Hosting an Express.js server on Firebase functions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Some quick and simple notes on getting an express server running on firebase." />
+<meta property="og:description" content="Some quick and simple notes on getting an express server running on firebase." />
+<link rel="canonical" href="https://www.kyso.dev/express/firebase/twitter/project%202/2021/03/16/FirebaseExpress.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/firebase/twitter/project%202/2021/03/16/FirebaseExpress.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/firebase.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-16T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Some quick and simple notes on getting an express server running on firebase.","url":"https://www.kyso.dev/express/firebase/twitter/project%202/2021/03/16/FirebaseExpress.html","@type":"BlogPosting","headline":"Hosting an Express.js server on Firebase functions","dateModified":"2021-03-16T00:00:00-05:00","datePublished":"2021-03-16T00:00:00-05:00","image":"https://www.kyso.dev/images/firebase.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/firebase/twitter/project%202/2021/03/16/FirebaseExpress.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Hosting an Express.js server on Firebase functions</h1><p class="page-description">Some quick and simple notes on getting an express server running on firebase.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-16T00:00:00-05:00" itemprop="datePublished">
+        Mar 16, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#firebase">firebase</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#twitter">twitter</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#project 2">project 2</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#so-why-is-it-even-compatible-in-the-first-place">So why is it even compatible in the first place?</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#setup">Setup</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#create-a-firebase-project">Create a firebase project</a></li>
+<li class="toc-entry toc-h2"><a href="#install-firebase-tools">Install firebase tools</a></li>
+<li class="toc-entry toc-h2"><a href="#create-a-project">Create a project</a></li>
+<li class="toc-entry toc-h2"><a href="#install-expressjs">Install express.js</a></li>
+<li class="toc-entry toc-h2"><a href="#create-the-express-app">Create the express app</a></li>
+<li class="toc-entry toc-h2"><a href="#deploying-to-firebase">Deploying to firebase</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#resources">Resources</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>For my next few projects I knew I was planning on learning express.js, but hosting was a concern in my mind. I definitely wanted a place to host my progress for cheap. I was thinking of renting a VPS from ovh, which I might still do, but I found out a few days ago that it’s possible to host express.js servers on firebase using their “functions”.</p>
+
+<p>It’s also free for the first 2,000,000 function invocations, or in our case the first 2,000,000 API calls. So it’s basically perfect for our little hobby projects. We also can set monthly budgets, so a random influx of traffic won’t fuck us either.</p>
+
+<h2 id="so-why-is-it-even-compatible-in-the-first-place">
+<a class="anchor" href="#so-why-is-it-even-compatible-in-the-first-place" aria-hidden="true"><span class="octicon octicon-link"></span></a>So why is it even compatible in the first place?</h2>
+<p>In short, the parameters passed to firebase functions’ onRequest() method were designed after Express.js’ Request &amp; Response objects.</p>
+
+<p>One of the firebase engineers explained why on StackOverflow.</p>
+<blockquote>
+  <p>This all works because under the covers, an Express app is actually just a function that takes a Node.js HTTP request and response and acts on them with some automatic sugaring such as routing. So you can pass an Express router or app to a Cloud Function handler without issue, because Express’s req and res objects are compatible with the standard Node.js versions. Basically, it’s a “double Express” app where one app is calling another.</p>
+</blockquote>
+
+<blockquote>
+  <p>As far as function lifecycle and shared state goes: functions are spun up in ephemeral compute instances that may survive to process multiple requests, but may not. You cannot tune or guarantee whether or not a function will be invoked in the same compute instance from one invocation to the next.</p>
+</blockquote>
+
+<blockquote>
+  <p>You can create resources (such as an Express app) outside of the function invocation and it will be executed when the compute resources are spun up for that function. This will survive as long as the instance does; however, CPU/network are throttled down to effectively zero between invocations, so you can’t do any “work” outside of a function invocation’s lifecycle. Once the promise resolves (or you’ve responded to the HTTP request), your compute resources will be clamped down via throttling and may be terminated at any moment.</p>
+</blockquote>
+
+<p>So it all works, pog. Let’s get started.</p>
+
+<h1 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h1>
+<h2 id="create-a-firebase-project">
+<a class="anchor" href="#create-a-firebase-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create a firebase project</h2>
+<p>In the <a href="https://console.firebase.google.com">Firebase console</a> click on “Add Project” and follow the dialogues until the project is created. Or use an existing project.</p>
+
+<p>Then from the project page you’ll need to upgrade your project plan from the free “Spark” plan to the pay as you go “Blaze” plan. Most everything can still be free, and just make sure to set the budget to something you’re comfortable with(such as $0).</p>
+
+<h2 id="install-firebase-tools">
+<a class="anchor" href="#install-firebase-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install firebase tools</h2>
+<p>You can either globally install firebase-tools or run them from npx</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install -g firebase-tools
+</code></pre></div></div>
+
+<h2 id="create-a-project">
+<a class="anchor" href="#create-a-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create a project</h2>
+<p>I’m not sure about adding firebase to an existing project, but the firebase binary can create a blank project.</p>
+
+<p>You’ll need to login at least once. This will open the browser and prompt you for logging in.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>firebase login
+</code></pre></div></div>
+
+<p>Next you create the project in the directory you want. This command will ask you to select a project from your firebase to link to this folder and then create a skeleton project with firebase features that you select(firestore, functions, etc…).</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>firebase init
+</code></pre></div></div>
+
+<h2 id="install-expressjs">
+<a class="anchor" href="#install-expressjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install express.js</h2>
+<p>Now that we have a blank project in the directory functions/, we cd into it and install our express server.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd functions
+npm install express
+</code></pre></div></div>
+
+<h2 id="create-the-express-app">
+<a class="anchor" href="#create-the-express-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create the express app</h2>
+<p>Lastly we just edit the index.js</p>
+
+<p>The base skeleton index.js is just</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">functions</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">firebase-functions</span><span class="dl">"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>We initialize our express app like normal</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">functions</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">firebase-functions</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">express</span><span class="dl">"</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">Hello world!</span><span class="dl">"</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Now we use the functions api to tell firebase to send requests to our express app and export it.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">functions</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">firebase-functions</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">express</span><span class="dl">"</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Hello world</span><span class="dl">'</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="kd">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">functions</span><span class="p">.</span><span class="nx">https</span><span class="p">.</span><span class="nx">onRequest</span><span class="p">(</span><span class="nx">app</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">server</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="deploying-to-firebase">
+<a class="anchor" href="#deploying-to-firebase" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploying to firebase</h2>
+<p>Lastly we need to upload it to our firebase project.</p>
+
+<p>Deploying is just one command</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>firebase deploy --only functions
+</code></pre></div></div>
+
+<p>After this, back in your firebase console for your project, under build -&gt; functions on the left, you should be able to see your deployed server with a link that looks like</p>
+
+<p>https://REGION-APP_ID.cloudfunctions.net/server</p>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>Well, that’s it. The server should be queryable at that address.</p>
+
+<p>Now I’m going to have to learn how to actually use express lol.</p>
+
+<h1 id="resources">
+<a class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h1>
+<p>From now on I’m going to start adding all the resources I read/use.</p>
+<ul>
+  <li>https://codeburst.io/express-js-on-cloud-functions-for-firebase-f76b5506179</li>
+  <li>https://firebase.google.com/docs/functions/get-started</li>
+  <li>https://expressjs.com/en/starter/hello-world.html</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/firebase/twitter/project%202/2021/03/16/FirebaseExpress.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
