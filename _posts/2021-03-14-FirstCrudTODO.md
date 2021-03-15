@@ -492,7 +492,7 @@ The last thing about the backend to note, is perhaps one of the most important. 
 Postman is a fantastic tool for doing API testing that even if I don't use the web technologies in this tutorial ever again, I'll certainly keep postman around for the future. 
 
 Here is a general overview of what postman looks like
-![postman overview](images/postman/postman.png)
+![postman overview]({{site.baseurl}}/images/postman/postman.png)
 
 The key features I wanted to show from postman were 
 - Collections / folders
@@ -503,7 +503,7 @@ The key features I wanted to show from postman were
 ### Collections & Folders
 As you can see on the left, we have a collections tab where we can define groups of requests and subdivide them into their own folders. This is a fantastic way to organize your projects. To create a folder, simple right click on the collection and select "create folder". 
 
-![postman collection](images/postman/postman-collections.png)
+![postman collection]({{site.baseurl}}/images/postman/postman-collections.png)
 
 ### Creating a request
 To create a request in the subfolder or collection, you can either click on the + button in the middle of the screen shown in the first screenshot, or right click on the collection/folder and select "create a request".
@@ -516,11 +516,11 @@ when you're finished, you can save it to the specific collection/folder and even
 Environments are one of the coolest things in Postman that I surprisingly didn't see in other REST client extensions I had on my browser. Basically what they do is allow you to define global variables for use in the selected environment.
 
 You can create an environment by selecting the environment button on the top right, creating one and defining variables in the pop-up screen below.
-![environment](images/postman/postman-environment.png)
+![environment]({{site.baseurl}}/images/postman/postman-environment.png)
 
 Once you've defined your variables, you can access them anywhere in your requests using handlebar style expressions {{variable_name}}. In the below screenshot you can see we've substituted both the server address, the email, and password with our environmental variables.
 
-![environmental variables](images/postman/postman-variables.png)
+![environmental variables]({{site.baseurl}}/images/postman/postman-variables.png)
 
 ### Test scripts
 This is something not covered in the tutorial, but something I found fascinating is that you can define pre & post request scripts to run. I imagine this is used often for response validation, but I found few other uses for it
@@ -530,7 +530,7 @@ This is something not covered in the tutorial, but something I found fascinating
 
 This is all done in the Tests tab on the request.
 
-![scripts](images/postman/postman-scripts.png)
+![scripts]({{site.baseurl}}/images/postman/postman-scripts.png)
 
 # Frontend Development
 I'm probably not going to go into as much depth as was necessary on the backend, I'm just going to touch on some of the key topics that I might forget in the future.
