@@ -158,7 +158,9 @@ I created a basic user table off of my minimalistic requirements
 - a unique user id
 - requiring a unique username
 - a required password
+
 #### migrations/users.sql
+
 ```sql
 
 --------------------------------------------------------------------------------
@@ -188,6 +190,7 @@ The tweets table also has fairly minimalist requirements right now
 - storing the user who tweeted
 
 #### migrations/tweets.sql
+
 ```sql
 
 --------------------------------------------------------------------------------
