@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a REST API with Express.js (2/X): Sqlite Database | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Creating a REST API with Express.js (2/X): Sqlite Database" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Implementing support for an asychronous sqlite database." />
+<meta property="og:description" content="Implementing support for an asychronous sqlite database." />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/express.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-23T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Implementing support for an asychronous sqlite database.","url":"https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (2/X): Sqlite Database","dateModified":"2021-03-23T00:00:00-05:00","datePublished":"2021-03-23T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a REST API with Express.js (2/X): Sqlite Database</h1><p class="page-description">Implementing support for an asychronous sqlite database.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-23T00:00:00-05:00" itemprop="datePublished">
+        Mar 23, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#sqlite">sqlite</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#migrations">migrations</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#why-async">Why async?</a></li>
+<li class="toc-entry toc-h2"><a href="#code">Code</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#setup">Setup</a></li>
+<li class="toc-entry toc-h1"><a href="#creating-an-importable-database-module">Creating an importable database module</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#basic-database-module">Basic Database Module</a></li>
+<li class="toc-entry toc-h2"><a href="#enabling-foreign-keys">Enabling foreign keys</a></li>
+<li class="toc-entry toc-h2"><a href="#using-our-database-module">Using our database module</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#migrations">Migrations</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup-1">Setup</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#migrationsjs">migrations.js</a></li>
+<li class="toc-entry toc-h3"><a href="#migration-files">Migration files</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#migrationsuserssql">migrations/users.sql</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#running-migrations">Running migrations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#references">References</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>In this post we’ll be implementing a basic SQLite database to contain our user data and tweets, adding async support to our database, and using basic migration scripts to setup our database.</p>
+
+<h2 id="why-async">
+<a class="anchor" href="#why-async" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why async?</h2>
+<p>By default the <code class="language-plaintext highlighter-rouge">sqlite3</code> database doesn’t have async support build in. This is probably fine, but I was running into issues where express wouldn’t wait for my query to return to continue processing the request. Specifically in cases where I was implementing error handling, the request would complete before the error was generated. I’m hoping to abuse the <code class="language-plaintext highlighter-rouge">await</code> keyword to so that I can wait for my query to resolve before continuing. It also allows us to use a callback style structure, which is nice.</p>
+
+<h2 id="code">
+<a class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
+<p>All code from this series can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express</p>
+
+<p>All code from this post can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations</p>
+
+<h1 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h1>
+<p>The first thing we need to do is install the node drivers for the database we’re using, <code class="language-plaintext highlighter-rouge">sqlite3</code>. Additionally we need to install the wrapper package <code class="language-plaintext highlighter-rouge">sqlite</code> which provides async support. To install both use the command below.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install sqlite3 sqlite
+</code></pre></div></div>
+
+<p>If we try to use the database now we’ll run into issues with the babel transpiler since it doesn’t come with async/await support out of the box. So we need to install a few more packages.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install @babel/runtime @babel/plugin-transform-runtime
+</code></pre></div></div>
+
+<p>Now we need to edit our <code class="language-plaintext highlighter-rouge">package.json</code> to configure and enable the plugin.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//package.json</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span><span class="nl">"babel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nl">"presets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"@babel/preset-env"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"plugins"</span><span class="p">:[</span><span class="w">
+    </span><span class="p">[</span><span class="s2">"@babel/plugin-transform-runtime"</span><span class="p">,</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"regenerator"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="err">,</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="creating-an-importable-database-module">
+<a class="anchor" href="#creating-an-importable-database-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating an importable database module</h1>
+<p>When using node modules, if you use an <code class="language-plaintext highlighter-rouge">import</code> statement on a directory, it’ll search for an <code class="language-plaintext highlighter-rouge">index.js</code> file in that directory and import that. So for our database, we would like to be able to just do an <code class="language-plaintext highlighter-rouge">import something from './database'</code>.</p>
+
+<h2 id="basic-database-module">
+<a class="anchor" href="#basic-database-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Database Module</h2>
+<p>Let’s create our <code class="language-plaintext highlighter-rouge">index.js</code> file in a new directory called <code class="language-plaintext highlighter-rouge">server/database/</code> so that we can import it as a module. The example code provided by the <a href="https://www.npmjs.com/package/sqlite">sqlite reference on npm</a> for exporting the database via a module is below. You can look on the reference for the configuration options you can pass to the <code class="language-plaintext highlighter-rouge">open()</code> method.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">sqlite3</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite3</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">open</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">async</span> <span class="kd">function</span> <span class="nx">openDb</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">open</span><span class="p">({</span>
+        <span class="na">filename</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./sqlite.db</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">driver</span><span class="p">:</span> <span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="enabling-foreign-keys">
+<a class="anchor" href="#enabling-foreign-keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enabling foreign keys</h2>
+<p>This works if we don’t want to work with foreign keys in our SQL database, but if you do, you’ll run into the same issue I did. Sqlite kept erroring out with a message about a foreign key mismatch, but what was really happening is SQLite doesn’t have foreign key support out of the box. You need to specify during each database session.</p>
+
+<p>The command we need to run to enable it during every runtime is this…</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sqlite</span><span class="o">&gt;</span> <span class="n">PRAGMA</span> <span class="n">foreign_keys</span> <span class="o">=</span> <span class="k">ON</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>So let’s add it to our export function so we always use it.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">sqlite3</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite3</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">open</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">async</span> <span class="kd">function</span> <span class="nx">openDb</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">open</span><span class="p">({</span>
+        <span class="na">filename</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./sqlite.db</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">driver</span><span class="p">:</span> <span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span>
+    <span class="p">});</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="dl">"</span><span class="s2">PRAGMA foreign_keys = ON;</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">db</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h2 id="using-our-database-module">
+<a class="anchor" href="#using-our-database-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using our database module</h2>
+<p>Now our database is importable as a module! All we need to do to use our database in a file is</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">openDb</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./dist/database</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">somefunction</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+  <span class="c1">//do stuff</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can alternatively use <code class="language-plaintext highlighter-rouge">Promise</code> syntax</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">openDb</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./dist/database</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">somefunction</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">await</span> <span class="nx">openDb</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="k">async</span> <span class="p">(</span><span class="nx">db</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">//do stuff</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="migrations">
+<a class="anchor" href="#migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Migrations</h1>
+<p>I was sorely missing the migration scripts provided in Adonis.js and was going to look into a migration framework, but the <code class="language-plaintext highlighter-rouge">sqlite</code> package that provides our async support also provides basic sql migrations!</p>
+
+<h2 id="setup-1">
+<a class="anchor" href="#setup-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<h3 id="migrationsjs">
+<a class="anchor" href="#migrationsjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>migrations.js</h3>
+<p>The first thing we need to do is create a <code class="language-plaintext highlighter-rouge">migrations.js</code> file in our <code class="language-plaintext highlighter-rouge">server/database/</code> folder to house our code.</p>
+
+<p>Once we do that, we need to add code to open our database, similar to how we did in our module, and then call <code class="language-plaintext highlighter-rouge">db.migrate()</code>.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">open</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">sqlite3</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite3</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">db_path</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">./sqlite.db</span><span class="dl">"</span>
+
+<span class="nx">open</span><span class="p">({</span>
+    <span class="na">filename</span><span class="p">:</span> <span class="nx">db_path</span><span class="p">,</span>
+    <span class="na">driver</span><span class="p">:</span> <span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="k">async</span> <span class="p">(</span><span class="nx">db</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">migrate</span><span class="p">()</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p>The default parameters of <code class="language-plaintext highlighter-rouge">db.migrate()</code> will look for migration scripts in a <code class="language-plaintext highlighter-rouge">./migrations</code> directory. Or you can pass a configuration object with a <code class="language-plaintext highlighter-rouge">migrationsPath</code> string.</p>
+
+<p>Since we know where it will look for migration scripts by default, let’s just create a directory in our project root called <code class="language-plaintext highlighter-rouge">migrations/</code>.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir migrations
+</code></pre></div></div>
+<p>Realistically this can be anywhere, as long as we pass the <code class="language-plaintext highlighter-rouge">migrationsPath</code> string. Just make sure to not have the string look in the <code class="language-plaintext highlighter-rouge">dist/</code> folder since that gets overwritten by babel &amp; isn’t included/copied in the transpile from the <code class="language-plaintext highlighter-rouge">server/</code> folder by default.</p>
+
+<h3 id="migration-files">
+<a class="anchor" href="#migration-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Migration files</h3>
+<p>The migration files themselves need to follow the naming convention <code class="language-plaintext highlighter-rouge">XXX-somename.sql</code>, where <code class="language-plaintext highlighter-rouge">XXX</code> is incrementing numbers starting at 001. If you don’t follow this convention, the migration script won’t register our files. Other than that, you can use <a href="https://github.com/kriasoft/node-sqlite/tree/master/migrations">the example migrations</a> provided by the <code class="language-plaintext highlighter-rouge">sqlite</code> package as reference for how to create your sql based migration files.</p>
+
+<p>Since I’m making a twitter clone, I need to have a table for users and one for tweets. So I’ll make a migration script for both</p>
+<ul>
+  <li>001-users.sql</li>
+  <li>002-tweets.sql</li>
+</ul>
+
+<p>Notice in the following code snippets, that Up &amp; Down have their own comment blocks. I believe this is how the migration script differentiates the up(build) and down(delete) scripts. Besides that it’s basic SQL.</p>
+
+<p>I created a basic user table off of my minimalistic requirements</p>
+<ul>
+  <li>a unique user id</li>
+  <li>requiring a unique username</li>
+  <li>a required password
+    <h4 id="migrationsuserssql">
+<a class="anchor" href="#migrationsuserssql" aria-hidden="true"><span class="octicon octicon-link"></span></a>migrations/users.sql</h4>
+    <p>```sql
+——————————————————————————–
+– Up
+——————————————————————————–</p>
+  </li>
+</ul>
+
+<p>CREATE TABLE users (
+  id INTEGER PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);</p>
+
+<hr>
+<p>– Down
+——————————————————————————–</p>
+
+<p>DROP TABLE users;</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+This snippet will create our ``users`` table to our spec, and then when we need to rebuild or tear down using our migration script, the line ``DROP TABLE users;`` will be run. 
+
+One cool thing about sqlite is that when we use this table, we don't have to pass in an id field. By default an ``INTEGER PRIMARY KEY`` will be equal to the rowid. Definitely need to do some testing to see if anything weird can arise from that later.
+
+The tweets table also has fairly minimalist requirements right now
+- a unique tweet id
+- the tweet contents
+- storing the user who tweeted
+
+#### migrations/tweets.sql
+```sql
+--------------------------------------------------------------------------------
+-- Up
+--------------------------------------------------------------------------------
+
+CREATE TABLE tweets (
+    id INTEGER PRIMARY KEY,
+    contents TEXT NOT NULL,
+    hashtags TEXT,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_userid FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+--------------------------------------------------------------------------------
+-- Down
+--------------------------------------------------------------------------------
+
+DROP TABLE tweets;
+</code></pre></div></div>
+
+<p>The only notable thing about this table is this line</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">CONSTRAINT</span> <span class="n">fk_userid</span> <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="n">users</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span> <span class="k">CASCADE</span>
+</code></pre></div></div>
+<p>This creates a constraint on the tweet to delete this database entry if the forerign key we’re referencing is deleted.</p>
+
+<h3 id="running-migrations">
+<a class="anchor" href="#running-migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running migrations</h3>
+<p>Now that we have very basic migration scripts, we need to setup our project to run them.</p>
+
+<p>Since we’ve already setup our <code class="language-plaintext highlighter-rouge">migrations.js</code> file, we just need to configure how to run them. Typically migrations aren’t run at runtime, so we’ll be creating a separate script in our <code class="language-plaintext highlighter-rouge">package.json</code> to run them for us.</p>
+
+<p>I separated the command into two parts since our migration script is in the <code class="language-plaintext highlighter-rouge">server/</code> directory that babel transpiles. We’ll want to transpile before executing.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//package.json</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+  </span><span class="nl">"dbinit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/database/migrations.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"migrations"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all clean transpile dbinit"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre></div></div>
+<p>Now you should be able to just run the following command to create your database =)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run migrations
+</code></pre></div></div>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>Honestly, the migrations seem a bit weaker than adonis.js, so maybe in the future I’ll look into a proper migration framework. But for now we have migration scripts and an importable method to open our database with async support. In the next post we’ll make sure it all works with unit tests!</p>
+
+<h1 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+<ul>
+  <li>https://www.sqlitetutorial.net/</li>
+  <li>https://www.npmjs.com/package/sqlite</li>
+  <li>https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav</li>
+  <li>https://github.com/kriasoft/node-sqlite/tree/master/migrations</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

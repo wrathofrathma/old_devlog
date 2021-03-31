@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a REST API with Express.js (1/X): Express Scaffolding | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Creating a REST API with Express.js (1/X): Express Scaffolding" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Learning to create an express project with support for ES6 modules and a hot reloading dev environment." />
+<meta property="og:description" content="Learning to create an express project with support for ES6 modules and a hot reloading dev environment." />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/express.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-22T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Learning to create an express project with support for ES6 modules and a hot reloading dev environment.","url":"https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (1/X): Express Scaffolding","dateModified":"2021-03-22T00:00:00-05:00","datePublished":"2021-03-22T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a REST API with Express.js (1/X): Express Scaffolding</h1><p class="page-description">Learning to create an express project with support for ES6 modules and a hot reloading dev environment.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-22T00:00:00-05:00" itemprop="datePublished">
+        Mar 22, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#es6">es6</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#whats-covered-in-this-post">What’s covered in this post</a></li>
+<li class="toc-entry toc-h2"><a href="#code">Code</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#intro">Intro</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#scaffolding-with-babel--es6-module-support-with-express-generator">Scaffolding with babel &amp; ES6 module support with express-generator</a></li>
+<li class="toc-entry toc-h2"><a href="#why-do-we-need-es6-support">Why do we need ES6+ Support?</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#project-setup">Project Setup</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#express-generator">express-generator</a></li>
+<li class="toc-entry toc-h2"><a href="#converting-source-to-es6">Converting source to ES6</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#code-for-binwwwjs">Code for bin/www.js</a></li>
+<li class="toc-entry toc-h3"><a href="#code-for-routesindexjs-and-routesusersjs">Code for routes/index.js and routes/users.js</a></li>
+<li class="toc-entry toc-h3"><a href="#code-for-appjs">Code for app.js</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#script-setup">Script Setup</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#install-npm-run-all">Install npm-run-all</a></li>
+<li class="toc-entry toc-h3"><a href="#install-babel-nodemon-and-rimraf">Install babel, nodemon, and rimraf</a></li>
+<li class="toc-entry toc-h3"><a href="#adding-transpile-script">Adding transpile script</a></li>
+<li class="toc-entry toc-h3"><a href="#clean-script">Clean Script</a></li>
+<li class="toc-entry toc-h3"><a href="#develoment-enviroment-script">Develoment enviroment script</a></li>
+<li class="toc-entry toc-h3"><a href="#production-environment-script">Production environment script</a></li>
+<li class="toc-entry toc-h3"><a href="#hot-reloading">Hot reloading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#references">References</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>In the <a href="https://www.kyso.dev/webdev/twitter/project%202/2021/03/15/twitter.html">project 2 description post</a> I set a goal to learn Express.js by implementing some of the basic functionality I enjoyed from Adonis.js.</p>
+
+<p>Over this series of posts I’ll be learning to implement many of these functionalities by making a basic REST API with Express.js.</p>
+
+<h2 id="whats-covered-in-this-post">
+<a class="anchor" href="#whats-covered-in-this-post" aria-hidden="true"><span class="octicon octicon-link"></span></a>What’s covered in this post</h2>
+<p>This first post is mostly just a summarized version of <a href="https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/">this tutorial</a> on setting up an express project with ES6 module support and a hot reload dev environment. I highly suggest reading the original article, I’m just going to reiterate the same stuff for self-reference later and get into other stuff in the next post.</p>
+
+<h2 id="code">
+<a class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
+<p>All code from this series can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express</p>
+
+<p>All code from this post can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express/tree/ES6-Express-Generator-Boilerplate</p>
+
+<h1 id="intro">
+<a class="anchor" href="#intro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intro</h1>
+<h2 id="scaffolding-with-babel--es6-module-support-with-express-generator">
+<a class="anchor" href="#scaffolding-with-babel--es6-module-support-with-express-generator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scaffolding with babel &amp; ES6 module support with express-generator</h2>
+
+<p>The goal of this post is to setup a development environment…</p>
+<ul>
+  <li>where we contain our coding to a source directory</li>
+  <li>with ES6 module support</li>
+  <li>that uses babel to transpile the ES6 code in our source directory to ES5 in a dist directory</li>
+  <li>where the development runtime reloads everytime we save changes to our code (hot reloading)</li>
+  <li>with scripts in our package.json do all of our dirty work.</li>
+</ul>
+
+<h2 id="why-do-we-need-es6-support">
+<a class="anchor" href="#why-do-we-need-es6-support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why do we need ES6+ Support?</h2>
+<p>Honestly, we probably don’t entirely but it’s really convenient. Enabling <code class="language-plaintext highlighter-rouge">import from</code> syntax for more controlled imports and modules being built into ES6 are reason enough to use it. Also almost every tutorial online seems to be using it, I tried avoiding it for awhile but this makes life a bit simpler.</p>
+
+<h1 id="project-setup">
+<a class="anchor" href="#project-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project Setup</h1>
+<h2 id="express-generator">
+<a class="anchor" href="#express-generator" aria-hidden="true"><span class="octicon octicon-link"></span></a>express-generator</h2>
+<p>First thing we need to is use express-generator to create the starting scaffold of our project. We pass our <code class="language-plaintext highlighter-rouge">project-name</code>(mine being rest-express) to the generator as well as <code class="language-plaintext highlighter-rouge">--no-view</code> since we don’t need any sort of frontend templating.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx express-generator rest-express --no-view
+</code></pre></div></div>
+
+<p>Now cd into the directory and install all of our dependencies</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd rest-express
+npm install
+</code></pre></div></div>
+
+<p>Next, or while they install, we need to restructure our scaffolded project.</p>
+
+<ul>
+  <li>Create a <code class="language-plaintext highlighter-rouge">server/</code> folder</li>
+  <li>Put <code class="language-plaintext highlighter-rouge">bin/</code>, <code class="language-plaintext highlighter-rouge">app.js</code>, and <code class="language-plaintext highlighter-rouge">routes/</code> in the <code class="language-plaintext highlighter-rouge">server/</code> folder</li>
+  <li>Rename <code class="language-plaintext highlighter-rouge">www</code> in the <code class="language-plaintext highlighter-rouge">bin/</code> folder to <code class="language-plaintext highlighter-rouge">www.js</code>
+</li>
+</ul>
+
+<p>Lastly, we need to modify our start script to point to the binary in the <code class="language-plaintext highlighter-rouge">dist/bin/</code> folder rather than <code class="language-plaintext highlighter-rouge">bin/</code>. Keep in mind we’ll be using babel to transpile our <code class="language-plaintext highlighter-rouge">server/</code> directory to our <code class="language-plaintext highlighter-rouge">dist/</code> directory.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">package.json</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-project-name"</span><span class="p">,</span><span class="w">
+  </span><span class="err">//</span><span class="w"> </span><span class="err">....other</span><span class="w"> </span><span class="err">details</span><span class="w">
+  </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="converting-source-to-es6">
+<a class="anchor" href="#converting-source-to-es6" aria-hidden="true"><span class="octicon octicon-link"></span></a>Converting source to ES6</h2>
+<p>So now we have to go to each of our source files and convert them to ES6. This is mostly just replacing <code class="language-plaintext highlighter-rouge">require()</code> with <code class="language-plaintext highlighter-rouge">import from</code> syntax and some exports.</p>
+
+<p>The article was kind enough to give copy &amp; pastable code, or you can go through and do it yourself. Just focus on imports(tops) and exports (bottom).</p>
+
+<h3 id="code-for-binwwwjs">
+<a class="anchor" href="#code-for-binwwwjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code for <code class="language-plaintext highlighter-rouge">bin/www.js</code>
+</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// bin/www.js</span>
+<span class="cm">/**
+ * Module dependencies.
+ */</span>
+<span class="k">import</span> <span class="nx">app</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../app</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">debugLib</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">debug</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">http</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">http</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">debug</span> <span class="o">=</span> <span class="nx">debugLib</span><span class="p">(</span><span class="dl">'</span><span class="s1">your-project-name:server</span><span class="dl">'</span><span class="p">);</span>
+<span class="c1">// ..generated code below.</span>
+</code></pre></div></div>
+
+<h3 id="code-for-routesindexjs-and-routesusersjs">
+<a class="anchor" href="#code-for-routesindexjs-and-routesusersjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code for <code class="language-plaintext highlighter-rouge">routes/index.js</code> and <code class="language-plaintext highlighter-rouge">routes/users.js</code>
+</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// routes/index.js and users.js</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+<span class="c1">// ..stuff below</span>
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="code-for-appjs">
+<a class="anchor" href="#code-for-appjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code for <code class="language-plaintext highlighter-rouge">app.js</code>
+</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">path</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">path</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">cookieParser</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">cookie-parser</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">logger</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">morgan</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="nx">indexRouter</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./routes/index</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">usersRouter</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./routes/users</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">logger</span><span class="p">(</span><span class="dl">'</span><span class="s1">dev</span><span class="dl">'</span><span class="p">));</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">urlencoded</span><span class="p">({</span> <span class="na">extended</span><span class="p">:</span> <span class="kc">false</span> <span class="p">}));</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cookieParser</span><span class="p">());</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="kd">static</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="dl">'</span><span class="s1">../public</span><span class="dl">'</span><span class="p">)));</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="nx">indexRouter</span><span class="p">);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">/users</span><span class="dl">'</span><span class="p">,</span> <span class="nx">usersRouter</span><span class="p">);</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">app</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Be sure to change the path to <code class="language-plaintext highlighter-rouge">public/</code> which is still at the root directory, to <code class="language-plaintext highlighter-rouge">../public</code>.</p>
+
+<p>After that we’re finished with the conversion to ES6 syntax and move onto scripts.</p>
+
+<h2 id="script-setup">
+<a class="anchor" href="#script-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Setup</h2>
+<p>In the <code class="language-plaintext highlighter-rouge">package.json</code> file at the root of your project you can define scripts. These scripts can be called by <code class="language-plaintext highlighter-rouge">npm run script-name</code> and are used and composed together to perform a multitude of tasks in your project.</p>
+
+<h3 id="install-npm-run-all">
+<a class="anchor" href="#install-npm-run-all" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install npm-run-all</h3>
+<p>In order to compose multiple tasks, we need to install the package npm-run-all.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install npm-run-all
+</code></pre></div></div>
+
+<h3 id="install-babel-nodemon-and-rimraf">
+<a class="anchor" href="#install-babel-nodemon-and-rimraf" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install babel, nodemon, and rimraf</h3>
+<ul>
+  <li>Babel is our ES6 -&gt; ES5 javascript transpiler.</li>
+  <li>nodemon watches a directory for changes and performs specified tasks when changes are detected.</li>
+  <li>rimraf is a package that makes deleting files &amp; directories simple
+    <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>npm install @babel/core @babel/cli @babel/preset-env nodemon rimraf
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="adding-transpile-script">
+<a class="anchor" href="#adding-transpile-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding transpile script</h3>
+<p>Now we can setup our <code class="language-plaintext highlighter-rouge">package.json</code> to transpile our code whenever we run <code class="language-plaintext highlighter-rouge">npm run transpile</code> in our project directory.</p>
+
+<p>First thing we need to do is configure babel to know what syntax we want to transpile to, and thankfully the <code class="language-plaintext highlighter-rouge">preset-env</code> is what we want. So we get away with just adding this babel object to our <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">package.json</span><span class="w">
+</span><span class="p">{</span><span class="w">  
+  </span><span class="err">//</span><span class="w"> </span><span class="err">..</span><span class="w"> </span><span class="err">contents</span><span class="w"> </span><span class="err">above</span><span class="w">
+  </span><span class="nl">"babel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"presets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"@babel/preset-env"</span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Next we need to add the transpile script to the <code class="language-plaintext highlighter-rouge">scripts</code> section of our <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">package.json</span><span class="w">
+</span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"transpile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"babel ./server --out-dir dist"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can now test this by running this command in your project directory.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run transpile
+</code></pre></div></div>
+
+<p>This should take all of the code in the source directory <code class="language-plaintext highlighter-rouge">server/</code> and transpile it to ES5 code in the <code class="language-plaintext highlighter-rouge">dist/</code> directory. Now would be a good time to try running our server. To give it a run we can run this command.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run server
+</code></pre></div></div>
+
+<h3 id="clean-script">
+<a class="anchor" href="#clean-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clean Script</h3>
+<p>Now that we have our transpile script creating a new directory, we need a clean script to delete our <code class="language-plaintext highlighter-rouge">dist/</code> directory so we have a clean directory to work with. This is where rimraf comes in.</p>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">package.json</code></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"transpile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"babel ./server --out-dir dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"clean"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rimraf dist"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This new ‘clean’ command will remove the folder dist/ from our project root whenever we call <code class="language-plaintext highlighter-rouge">npm run clean</code>.</p>
+
+<p>Now we can use <code class="language-plaintext highlighter-rouge">npm-run-all</code> to combine these two scripts, clean and transpile, into a build script that does both for us automatically.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"transpile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"babel ./server --out-dir dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"clean"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rimraf dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all clean transpile"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="develoment-enviroment-script">
+<a class="anchor" href="#develoment-enviroment-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Develoment enviroment script</h3>
+<p>For our development environment script, we want to remove our old distribution directory, transpile our code, set the node environment to development and then run the server.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"transpile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"babel ./server --out-dir dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"clean"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rimraf dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all clean transpile"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NODE_ENV=development npm-run-all build server"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">    
+</span></code></pre></div></div>
+
+<h3 id="production-environment-script">
+<a class="anchor" href="#production-environment-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Production environment script</h3>
+<p>Similar to the dev script, we also want a production script that peforms the same tasks, but sets the node environment to production.</p>
+
+<p>Additionally, we want to add a <code class="language-plaintext highlighter-rouge">start</code> script since most deployment platforms like AWS, Firebase, Heroku call the start script to start the server.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"server"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/bin/www"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"transpile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"babel ./server --out-dir dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"clean"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rimraf dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all clean transpile"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NODE_ENV=development npm-run-all build server"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"prod"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NODE_ENV=production npm-run-all build server"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"start"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run prod"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="hot-reloading">
+<a class="anchor" href="#hot-reloading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hot reloading</h3>
+<p>The last thing to setup from this section is hot reloading on the development environment. Remember this uses the <code class="language-plaintext highlighter-rouge">nodemon</code> package, so we need to configure it a bit in our <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">package.json</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span><span class="nl">"nodemonConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+  </span><span class="nl">"exec"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run dev"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"watch"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"server/*"</span><span class="p">,</span><span class="w"> </span><span class="s2">"public/*"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"ignore"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"**/__tests__/**"</span><span class="p">,</span><span class="w"> </span><span class="s2">"*.test.js"</span><span class="p">,</span><span class="w"> </span><span class="s2">"*.spec.js"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="err">,</span><span class="w">
+</span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+  </span><span class="err">//</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="err">other</span><span class="w"> </span><span class="err">scripts</span><span class="w">
+  </span><span class="nl">"watch:dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nodemon"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>In the nodemon config, you can see we specify what command to run when a file changes under <code class="language-plaintext highlighter-rouge">"exec": "npm run dev"</code>, what directories and files to watch for changes, and what patterns to ignore.</p>
+
+<p>Now we can start a hot reloading development environment with</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run watch:dev
+</code></pre></div></div>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>It felt a little weird mostly summarizing for one post, but I wanted to avoid another monolithic post if I could and wanted to document the entire process.</p>
+
+<p>Anyways, now you know how to setup a fairly decent dev environment!</p>
+
+<p>Thanks for reading.</p>
+
+<h1 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+<ul>
+  <li>https://expressjs.com/</li>
+  <li>https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/webdev/es6/2021/03/22/Express-Scaffolding.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
