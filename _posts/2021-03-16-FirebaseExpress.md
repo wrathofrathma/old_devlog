@@ -6,7 +6,7 @@ toc: true
 comments: true
 hide: false
 search_exclude: false
-categories: [express, firebase, twitter, project 2]
+categories: [express, firebase, webdev]
 image: images/firebase.jpg
 ---
 

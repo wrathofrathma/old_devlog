@@ -45,7 +45,7 @@ I went with Primevue because it has a lot of components, the free theme selectio
 ## A project to get started
 From what I understand, CRUD TODO lists are basically the "hello world" of web development, so I sought out a tutorial matching these technologies and found a real gem of a tutorial by freecodecamp. 
 
-[Full Stack Todo List tutorial using Vue.js & Adonis.js](https://www.youtube.com/watch?v=dfEZlcPvez8)
+> youtube: https://www.youtube.com/watch?v=dfEZlcPvez8
 
 ### Differences
 There are a few key differences between the stack we're using and the one in the tutorial video from 3 years ago. 
