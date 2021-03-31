@@ -142,6 +142,7 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#migration-files">Migration files</a>
 <ul>
 <li class="toc-entry toc-h4"><a href="#migrationsuserssql">migrations/users.sql</a></li>
+<li class="toc-entry toc-h4"><a href="#migrationstweetssql">migrations/tweets.sql</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h3"><a href="#running-migrations">Running migrations</a></li>
@@ -303,58 +304,62 @@ window.onload = wrap_img;
 <ul>
   <li>a unique user id</li>
   <li>requiring a unique username</li>
-  <li>a required password
-    <h4 id="migrationsuserssql">
-<a class="anchor" href="#migrationsuserssql" aria-hidden="true"><span class="octicon octicon-link"></span></a>migrations/users.sql</h4>
-    <p>```sql</p>
-  </li>
+  <li>a required password</li>
 </ul>
 
-<hr>
-<p>– Up
-——————————————————————————–</p>
+<h4 id="migrationsuserssql">
+<a class="anchor" href="#migrationsuserssql" aria-hidden="true"><span class="octicon octicon-link"></span></a>migrations/users.sql</h4>
 
-<p>CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL
-);</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">--------------------------------------------------------------------------------</span>
+<span class="c1">-- Up</span>
+<span class="c1">--------------------------------------------------------------------------------</span>
 
-<hr>
-<p>– Down
-——————————————————————————–</p>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">users</span> <span class="p">(</span>
+  <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="n">username</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">UNIQUE</span><span class="p">,</span>
+  <span class="n">password</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="p">);</span>
 
-<p>DROP TABLE users;</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-This snippet will create our ``users`` table to our spec, and then when we need to rebuild or tear down using our migration script, the line ``DROP TABLE users;`` will be run. 
+<span class="c1">--------------------------------------------------------------------------------</span>
+<span class="c1">-- Down</span>
+<span class="c1">--------------------------------------------------------------------------------</span>
 
-One cool thing about sqlite is that when we use this table, we don't have to pass in an id field. By default an ``INTEGER PRIMARY KEY`` will be equal to the rowid. Definitely need to do some testing to see if anything weird can arise from that later.
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">users</span><span class="p">;</span>
+</code></pre></div></div>
 
-The tweets table also has fairly minimalist requirements right now
-- a unique tweet id
-- the tweet contents
-- storing the user who tweeted
+<p>This snippet will create our <code class="language-plaintext highlighter-rouge">users</code> table to our spec, and then when we need to rebuild or tear down using our migration script, the line <code class="language-plaintext highlighter-rouge">DROP TABLE users;</code> will be run.</p>
 
-#### migrations/tweets.sql
-```sql
+<p>One cool thing about sqlite is that when we use this table, we don’t have to pass in an id field. By default an <code class="language-plaintext highlighter-rouge">INTEGER PRIMARY KEY</code> will be equal to the rowid. Definitely need to do some testing to see if anything weird can arise from that later.</p>
 
---------------------------------------------------------------------------------
--- Up
---------------------------------------------------------------------------------
+<p>The tweets table also has fairly minimalist requirements right now</p>
+<ul>
+  <li>a unique tweet id</li>
+  <li>the tweet contents</li>
+  <li>storing the user who tweeted</li>
+</ul>
 
-CREATE TABLE tweets (
-    id INTEGER PRIMARY KEY,
-    contents TEXT NOT NULL,
-    hashtags TEXT,
-    user_id INTEGER NOT NULL,
-    CONSTRAINT fk_userid FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-);
+<h4 id="migrationstweetssql">
+<a class="anchor" href="#migrationstweetssql" aria-hidden="true"><span class="octicon octicon-link"></span></a>migrations/tweets.sql</h4>
 
---------------------------------------------------------------------------------
--- Down
---------------------------------------------------------------------------------
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">--------------------------------------------------------------------------------</span>
+<span class="c1">-- Up</span>
+<span class="c1">--------------------------------------------------------------------------------</span>
 
-DROP TABLE tweets;
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">tweets</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+    <span class="n">contents</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">hashtags</span> <span class="nb">TEXT</span><span class="p">,</span>
+    <span class="n">user_id</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="k">CONSTRAINT</span> <span class="n">fk_userid</span> <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="n">users</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span> <span class="k">CASCADE</span>
+<span class="p">);</span>
+
+<span class="c1">--------------------------------------------------------------------------------</span>
+<span class="c1">-- Down</span>
+<span class="c1">--------------------------------------------------------------------------------</span>
+
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">tweets</span><span class="p">;</span>
 </code></pre></div></div>
 
 <p>The only notable thing about this table is this line</p>
