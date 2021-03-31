@@ -160,6 +160,7 @@ I created a basic user table off of my minimalistic requirements
 - a required password
 #### migrations/users.sql
 ```sql
+
 --------------------------------------------------------------------------------
 -- Up
 --------------------------------------------------------------------------------
@@ -188,6 +189,7 @@ The tweets table also has fairly minimalist requirements right now
 
 #### migrations/tweets.sql
 ```sql
+
 --------------------------------------------------------------------------------
 -- Up
 --------------------------------------------------------------------------------
