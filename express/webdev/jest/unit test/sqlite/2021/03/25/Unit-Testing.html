@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a REST API with Express.js (3/X): Unit Testing | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Creating a REST API with Express.js (3/X): Unit Testing" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Unit testing our database with Jest!" />
+<meta property="og:description" content="Unit testing our database with Jest!" />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/express.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-25T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Unit testing our database with Jest!","url":"https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (3/X): Unit Testing","dateModified":"2021-03-25T00:00:00-05:00","datePublished":"2021-03-25T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a REST API with Express.js (3/X): Unit Testing</h1><p class="page-description">Unit testing our database with Jest!</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-25T00:00:00-05:00" itemprop="datePublished">
+        Mar 25, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#jest">jest</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#unit test">unit test</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#sqlite">sqlite</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#what-is-unit-testing">What is Unit Testing</a></li>
+<li class="toc-entry toc-h2"><a href="#jest">Jest</a></li>
+<li class="toc-entry toc-h2"><a href="#code">Code</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#setting-up-jest">Setting up Jest</a></li>
+<li class="toc-entry toc-h1"><a href="#writing-a-basic-test">Writing a basic test</a></li>
+<li class="toc-entry toc-h1"><a href="#unit-testing-our-database">Unit testing our database</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup">Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#testing-whether-our-database-opens-correctly">Testing whether our database opens correctly.</a></li>
+<li class="toc-entry toc-h2"><a href="#unit-testing-crud-functionality">Unit testing CRUD functionality</a></li>
+<li class="toc-entry toc-h2"><a href="#unit-testing-tweet-constraints">Unit testing tweet constraints</a></li>
+<li class="toc-entry toc-h2"><a href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#references">References</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>In this post I’ll be learning unit testing with the Jest framework by testing the database we built in the previous post.</p>
+
+<h2 id="what-is-unit-testing">
+<a class="anchor" href="#what-is-unit-testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is Unit Testing</h2>
+<p>Unit testing is where you test individual components of software. By testing and ensuring certain expectations from eatch unit/component, it’s very easy to track down errors down the line and even automate testing large programs.</p>
+
+<p>Unit testing is used by most professionals in software development, so it can’t hurt to get a hang of it early.</p>
+
+<h2 id="jest">
+<a class="anchor" href="#jest" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jest</h2>
+<p><a href="https://jestjs.io/">Jest</a> is a popular javascript web testing framework. It has support for just about every major frontend framework, typescript, nodejs, and babel.</p>
+
+<h2 id="code">
+<a class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
+<p>All code from this series can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express</p>
+
+<p>All code from this post can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529</p>
+
+<h1 id="setting-up-jest">
+<a class="anchor" href="#setting-up-jest" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up Jest</h1>
+<p>The first thing we need to do is install jest to our devDependencies.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install -D jest
+</code></pre></div></div>
+
+<p>Once that’s installed we’ll edit our <code class="language-plaintext highlighter-rouge">package.json</code> to tell jest what our test environment is(node), and create a script to run our tests.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">package.json</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span><span class="nl">"jest"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+  </span><span class="nl">"testEnvironment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node"</span><span class="w">
+</span><span class="p">}</span><span class="err">,</span><span class="w">
+</span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="err">//</span><span class="w"> </span><span class="err">..other</span><span class="w"> </span><span class="err">scripts</span><span class="w"> 
+  </span><span class="nl">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jest"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="writing-a-basic-test">
+<a class="anchor" href="#writing-a-basic-test" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writing a basic test</h1>
+<p>By default Jest runs any tests with the naming scheme <code class="language-plaintext highlighter-rouge">{test-name}.test.js</code> found anywhere in the project directory. I’m not sure if it has a depth limit as I’ve only used tests 1 folder deep.</p>
+
+<p>A basic test in jest is composed of three things,</p>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">test()</code> method that starts the test</li>
+  <li>A driver function to run our test</li>
+  <li>Setting expectations within the driver function using the <code class="language-plaintext highlighter-rouge">expect()</code> method.</li>
+</ul>
+
+<p>The <code class="language-plaintext highlighter-rouge">Test()</code> method takes in a few arguments</p>
+<ul>
+  <li>A name for the test(best to be descriptive)</li>
+  <li>A driver function to run the test</li>
+  <li>And an optional timeout for when to give up</li>
+</ul>
+
+<p>Below is an example test that shows us creating a test some <code class="language-plaintext highlighter-rouge">some_fn()</code>. Our driver method is an arrow function that sets the expectation for the return value of <code class="language-plaintext highlighter-rouge">some_fn()</code> to be 0.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">some_fn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Some_fn:ReturnValue</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">some_fn</span><span class="p">()).</span><span class="nx">toEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>You can throw the above code into a <code class="language-plaintext highlighter-rouge">sample.test.js</code> file and then run the following command to run the test.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run test
+</code></pre></div></div>
+<p>I highly suggest using the <a href="https://jestjs.io/docs/expect">expect reference</a>, or the <a href="https://jestjs.io/docs/api">API itself</a> to guide you in creating your tests.</p>
+
+<h1 id="unit-testing-our-database">
+<a class="anchor" href="#unit-testing-our-database" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unit testing our database</h1>
+<h2 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<p>Now that we understand the basic structure of a test, we’ll be writing tests for our database to ensure the following</p>
+<ul>
+  <li>Our export method is properly working and opening the database</li>
+  <li>We can perform CRUD operations on the User table</li>
+  <li>We can perform CRUD operations on the Tweets table</li>
+  <li>Tweets are deleted on user deletion</li>
+</ul>
+
+<p>For now I’ve taken to creating a directory to house my unit tests under the project root <code class="language-plaintext highlighter-rouge">project-root/tests/</code>.</p>
+
+<p>Create a file in the <code class="language-plaintext highlighter-rouge">tests/</code> directory called <code class="language-plaintext highlighter-rouge">database.test.js</code>, the rest of this section will be working in that file.</p>
+
+<h2 id="testing-whether-our-database-opens-correctly">
+<a class="anchor" href="#testing-whether-our-database-opens-correctly" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing whether our database opens correctly.</h2>
+<p>Our first objective is to test whether our database is correctly being opened and exported by our database module.</p>
+
+<p>To do this we import our database module just as we would in our server code, and then write a method for our test. Since we’re using async/await to access our database, we need to make our test function also async.</p>
+
+<p>After we open our database, we test whether the object returned from the <code class="language-plaintext highlighter-rouge">openDb()</code> method actually returned a valid sqlite3 database by comparing the returned object with the structure a valid sqlite3 database would have.</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+        </span><span class="nl">"filename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"somefile"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nl">"driver"</span><span class="p">:</span><span class="w"> </span><span class="err">sqlite</span><span class="mi">3</span><span class="err">.Database</span><span class="w"> </span><span class="err">driver</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"db"</span><span class="p">:</span><span class="w"> </span><span class="err">Database</span><span class="w"> </span><span class="err">Instance</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<p>To test for this structure, we use the following expectation functions.</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect(value).toEqual(value)</code>: Recursively compares all properties for equality.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect.objectContaining(object)</code>: Checks if the object contains properties with expectations you set.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect.anything()</code>: matches anything that isn’t <code class="language-plaintext highlighter-rouge">undefined</code> or <code class="language-plaintext highlighter-rouge">null</code>.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect.any(Constructor)</code>: Matches anything created by the given constructor.</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">openDb</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../server/database</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">sqlite3</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite3</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">test_open</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">db</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span>
+        <span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+            <span class="na">config</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+            <span class="na">db</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span><span class="p">)</span>
+        <span class="p">})</span>
+    <span class="p">);</span> 
+<span class="p">}</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:Open</span><span class="dl">'</span><span class="p">,</span> <span class="nx">test_open</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Then we can run our test</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run test
+</code></pre></div></div>
+
+<p><img src="/images/rest-express/opentest.png" alt="Open Test"></p>
+
+<p>Looks to be functioning well.</p>
+
+<h2 id="unit-testing-crud-functionality">
+<a class="anchor" href="#unit-testing-crud-functionality" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unit testing CRUD functionality</h2>
+<p>Now that we’ve done one, doing others is actually quite straightforward.</p>
+
+<p>In order to test CRUD functionality, we need to be able to create, read, update, and delete records from our database. We can test for these in the following ways</p>
+<ul>
+  <li>Create/Read: If we create a record, we should be able to read it and get the same result.</li>
+  <li>Update: We should be able to update the record, query it again and test for the updated result.</li>
+  <li>Delete: I had to check what happens if you query a record that doesn’t exist, in sqlite3 we get an undefined object. So we need to delete something, query it again, and then test for undefined.</li>
+</ul>
+
+<p>The only new expectation tests I used here were</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect.stringMatching(String)</code>: Tests string for equality</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">expect(value).toBeUndefined()</code>: Assures value is undefined</li>
+</ul>
+
+<p>Everything else should look familiar, other than maybe the sql.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">test_crud_users</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+    <span class="c1">// User data</span>
+    <span class="kd">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">rathma</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">somepass</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">new_password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">newpassword</span><span class="dl">'</span><span class="p">;</span>
+
+    <span class="c1">// Create/insert</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO users (username, password) VALUES ('</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">','</span><span class="p">${</span><span class="nx">password</span><span class="p">}</span><span class="s2">');`</span><span class="p">)</span>
+
+    <span class="c1">//read/fetch</span>
+    <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM users;</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+        <span class="na">username</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">username</span><span class="p">),</span>
+        <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span>
+    <span class="p">}));</span>
+
+    <span class="c1">//Update</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">`UPDATE users SET password = '</span><span class="p">${</span><span class="nx">new_password</span><span class="p">}</span><span class="s2">' WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT password FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+        <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">new_password</span><span class="p">)</span>
+    <span class="p">}));</span>
+
+    <span class="c1">//Delete</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">)</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD</span><span class="dl">'</span><span class="p">,</span> <span class="nx">test_crud_users</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>If we run this test, we can see it passes with flying colors</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run test
+</code></pre></div></div>
+
+<p><img src="/images/rest-express/crudtest.png" alt="CRUDTest"></p>
+
+<p>This is functionally going to be the same as testing the Tweets table. So you can do that on your own or look in the source code.</p>
+
+<h2 id="unit-testing-tweet-constraints">
+<a class="anchor" href="#unit-testing-tweet-constraints" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unit testing tweet constraints</h2>
+<p>If you recall, when we created our tweet table we added the constraint</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CONSTRAINT</span> <span class="n">fk_userid</span> <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="n">users</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span> <span class="k">CASCADE</span>
+</code></pre></div></div>
+
+<p>This creates a constraint on the tweet to delete this database entry if the forerign key we’re referencing is deleted. So let’s verify that this actually works.</p>
+
+<p>I tacked my test onto the end of my <code class="language-plaintext highlighter-rouge">Database:Tweets</code> test method, so we already have a user defined. There isn’t anything here that you haven’t seen yet. The test is similar to our CRUD delete test, where we test for undefined after deleting a user. The only difference is we’re querying the tweets table to make sure that they get deleted.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">test_tweets</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="c1">// Test for tweet constraints</span>
+    <span class="c1">// We'll insert a few tweets real quick</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO tweets (user_id,contents) VALUES (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">');`</span><span class="p">);</span>
+    <span class="c1">// Make sure they exist and we can get at least one</span>
+    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+        <span class="na">id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+        <span class="na">contents</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+        <span class="na">user_id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">()</span>
+    <span class="p">}));</span>
+    <span class="c1">// Delete our user</span>
+    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+    <span class="c1">// Try to fetch a tweet, should all be deleted</span>
+    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Our final test results….</p>
+
+<p><img src="/images/rest-express/final_test.png" alt="Final Test"></p>
+
+<h2 id="troubleshooting">
+<a class="anchor" href="#troubleshooting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Troubleshooting</h2>
+<p>There really wasn’t any big challenges I was met with in playing with unit tests. The only real annoyance was when a test would error out or I’d forget to clean up after doing some tests, I’d get SQL errors for duplicate entries. I got into the bad habit of just deleting the database &amp; even adding it to my test script until they worked without it lol.</p>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>There is so much depth in the jest framework that I didn’t even scratch, but hopefully in the future I’ll have the opportunity to dive deeper into other tests.</p>
+
+<p>Thanks for reading!</p>
+
+<h1 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+<ul>
+  <li>https://jestjs.io/</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
