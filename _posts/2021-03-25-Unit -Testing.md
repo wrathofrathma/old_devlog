@@ -14,7 +14,7 @@ image: images/express.png
 In this post I'll be learning unit testing with the Jest framework by testing the database we built in the previous post.
 
 ## What is Unit Testing
-Unit testing is where you test individual components of software. By testing and ensuring certain expectations from eatch unit/component, it's very easy to track down errors down the line and even automate testing large programs. 
+Unit testing is where you test individual components of software. By testing and ensuring certain expectations from each unit/component, it's very easy to track down errors down the line and even automate testing large programs. 
 
 Unit testing is used by most professionals in software development, so it can't hurt to get a hang of it early.
 
