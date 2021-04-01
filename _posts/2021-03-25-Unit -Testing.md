@@ -11,7 +11,7 @@ image: images/express.png
 ---
 
 # Overview
-In this post I'll be learning unit testing with the Jest framework by testing the database we built in the previous post.
+In this post I'll be learning unit testing with the Jest framework by testing the database we built in the [previous post: Sqlite-Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html).
 
 ## What is Unit Testing
 Unit testing is where you test individual components of software. By testing and ensuring certain expectations from each unit/component, it's very easy to track down errors down the line and even automate testing large programs. 
@@ -24,11 +24,11 @@ Unit testing is used by most professionals in software development, so it can't 
 ## Code
 All code from this series can be found here
 
-https://github.com/wrathofrathma/rest-express
+[https://github.com/wrathofrathma/rest-express](https://github.com/wrathofrathma/rest-express)
 
 All code from this post can be found here
 
-https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529
+[https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529](https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529)
 
 
 # Setting up Jest
@@ -245,5 +245,7 @@ There is so much depth in the jest framework that I didn't even scratch, but hop
 
 Thanks for reading!
 
+[Previous Post: Sqlite-Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html)
+
 # References
-- https://jestjs.io/
+- [https://jestjs.io/](https://jestjs.io/)

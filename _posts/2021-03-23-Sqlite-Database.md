@@ -13,17 +13,21 @@ image: images/express.png
 # Overview
 In this post we'll be implementing a basic SQLite database to contain our user data and tweets, adding async support to our database, and using basic migration scripts to setup our database.
 
+[Previous Post: Express Scaffolding](https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html)
+
+[Next Post: Unit Testing](https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html)
+
 ## Why async?
 By default the ``sqlite3`` database doesn't have async support build in. This is probably fine, but I was running into issues where express wouldn't wait for my query to return to continue processing the request. Specifically in cases where I was implementing error handling, the request would complete before the error was generated. I'm hoping to abuse the ``await`` keyword to so that I can wait for my query to resolve before continuing. It also allows us to use a callback style structure, which is nice.
 
 ## Code
 All code from this series can be found here
 
-https://github.com/wrathofrathma/rest-express
+[https://github.com/wrathofrathma/rest-express](https://github.com/wrathofrathma/rest-express)
 
 All code from this post can be found here
 
-https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations
+[https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations](https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations)
 
 # Setup
 The first thing we need to do is install the node drivers for the database we're using, ``sqlite3``. Additionally we need to install the wrapper package ``sqlite`` which provides async support. To install both use the command below.
@@ -243,8 +247,14 @@ npm run migrations
 # Closing
 Honestly, the migrations seem a bit weaker than adonis.js, so maybe in the future I'll look into a proper migration framework. But for now we have migration scripts and an importable method to open our database with async support. In the next post we'll make sure it all works with unit tests!
 
+Thanks for reading!
+
+[Previous Post: Express Scaffolding](https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html)
+
+[Next Post: Unit Testing](https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html)
+
 # References
-- https://www.sqlitetutorial.net/
-- https://www.npmjs.com/package/sqlite
-- https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav
-- https://github.com/kriasoft/node-sqlite/tree/master/migrations
+- [https://www.sqlitetutorial.net/](https://www.sqlitetutorial.net/)
+- [https://www.npmjs.com/package/sqlite](https://www.npmjs.com/package/sqlite)
+- [https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav](https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav)
+- [https://github.com/kriasoft/node-sqlite/tree/master/migrations](https://github.com/kriasoft/node-sqlite/tree/master/migrations)

@@ -15,6 +15,8 @@ In the [project 2 description post](https://www.kyso.dev/webdev/twitter/project%
 
 Over this series of posts I'll be learning to implement many of these functionalities by making a basic REST API with Express.js.
 
+[Next Post: Sqlite Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html)
+
 ## What's covered in this post
 This first post is mostly just a summarized version of [this tutorial](https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/) on setting up an express project with ES6 module support and a hot reload dev environment. I highly suggest reading the original article, I'm just going to reiterate the same stuff for self-reference later and get into other stuff in the next post.
 
@@ -22,11 +24,11 @@ This first post is mostly just a summarized version of [this tutorial](https://w
 ## Code
 All code from this series can be found here
 
-https://github.com/wrathofrathma/rest-express
+[https://github.com/wrathofrathma/rest-express](https://github.com/wrathofrathma/rest-express)
 
 All code from this post can be found here
 
-https://github.com/wrathofrathma/rest-express/tree/ES6-Express-Generator-Boilerplate
+[https://github.com/wrathofrathma/rest-express/tree/ES6-Express-Generator-Boilerplate](https://github.com/wrathofrathma/rest-express/tree/ES6-Express-Generator-Boilerplate)
 
 
 # Intro
@@ -269,6 +271,8 @@ Anyways, now you know how to setup a fairly decent dev environment!
 
 Thanks for reading.
 
+[Next Post: Sqlite Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html)
+
 # References
-- https://expressjs.com/
-- https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/
+- [https://expressjs.com/](https://expressjs.com/)
+- [https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/](https://www.freecodecamp.org/news/how-to-enable-es6-and-beyond-syntax-with-node-and-express-68d3e11fe1ab/)
