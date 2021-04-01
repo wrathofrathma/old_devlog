@@ -156,6 +156,10 @@ window.onload = wrap_img;
 <a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
 <p>In this post we’ll be implementing a basic SQLite database to contain our user data and tweets, adding async support to our database, and using basic migration scripts to setup our database.</p>
 
+<p><a href="https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html">Previous Post: Express Scaffolding</a></p>
+
+<p><a href="https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html">Next Post: Unit Testing</a></p>
+
 <h2 id="why-async">
 <a class="anchor" href="#why-async" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why async?</h2>
 <p>By default the <code class="language-plaintext highlighter-rouge">sqlite3</code> database doesn’t have async support build in. This is probably fine, but I was running into issues where express wouldn’t wait for my query to return to continue processing the request. Specifically in cases where I was implementing error handling, the request would complete before the error was generated. I’m hoping to abuse the <code class="language-plaintext highlighter-rouge">await</code> keyword to so that I can wait for my query to resolve before continuing. It also allows us to use a callback style structure, which is nice.</p>
@@ -164,11 +168,11 @@ window.onload = wrap_img;
 <a class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
 <p>All code from this series can be found here</p>
 
-<p>https://github.com/wrathofrathma/rest-express</p>
+<p><a href="https://github.com/wrathofrathma/rest-express">https://github.com/wrathofrathma/rest-express</a></p>
 
 <p>All code from this post can be found here</p>
 
-<p>https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations</p>
+<p><a href="https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations">https://github.com/wrathofrathma/rest-express/tree/Async-SQLite-%26-Migrations</a></p>
 
 <h1 id="setup">
 <a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h1>
@@ -392,13 +396,19 @@ window.onload = wrap_img;
 <a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
 <p>Honestly, the migrations seem a bit weaker than adonis.js, so maybe in the future I’ll look into a proper migration framework. But for now we have migration scripts and an importable method to open our database with async support. In the next post we’ll make sure it all works with unit tests!</p>
 
+<p>Thanks for reading!</p>
+
+<p><a href="https://www.kyso.dev/express/webdev/es6/2021/03/22/Express-Scaffolding.html">Previous Post: Express Scaffolding</a></p>
+
+<p><a href="https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html">Next Post: Unit Testing</a></p>
+
 <h1 id="references">
 <a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
 <ul>
-  <li>https://www.sqlitetutorial.net/</li>
-  <li>https://www.npmjs.com/package/sqlite</li>
-  <li>https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav</li>
-  <li>https://github.com/kriasoft/node-sqlite/tree/master/migrations</li>
+  <li><a href="https://www.sqlitetutorial.net/">https://www.sqlitetutorial.net/</a></li>
+  <li><a href="https://www.npmjs.com/package/sqlite">https://www.npmjs.com/package/sqlite</a></li>
+  <li><a href="https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav">https://babeljs.io/docs/en/babel-plugin-transform-runtime#docsNav</a></li>
+  <li><a href="https://github.com/kriasoft/node-sqlite/tree/master/migrations">https://github.com/kriasoft/node-sqlite/tree/master/migrations</a></li>
 </ul>
 
   </div><!-- from https://github.com/utterance/utterances -->
