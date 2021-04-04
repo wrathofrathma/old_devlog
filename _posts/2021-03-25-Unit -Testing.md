@@ -86,9 +86,36 @@ npm run test
 ```
 I highly suggest using the [expect reference](https://jestjs.io/docs/expect), or the [API itself](https://jestjs.io/docs/api) to guide you in creating your tests.
 
+## Order of execution
+By default, at the file-level, jest runs tests in parallel. However within these files, tests are run in sequence. 
+
+## Grouping tests
+While you can stuff a bunch of ``expect()`` statements inside of a single test, it's probably better practice to keep the scope of each test a bit more narrow. We can use the ``describe(name, function)`` method to group similar tests together.
+
+A somewhat related example
+
+```javascript
+describe('Database:CRUD', async () => {
+    const db = await openDb();
+
+    test('Database:CRUD:Insert', aync () => {
+        //Do insert test
+    })
+    test('Database:CRUD:Fetch', aync () => {
+        //Do fetch test
+    })
+    test('Database:CRUD:Update', aync () => {
+        //Do update test
+    })
+    test('Database:CRUD:Delete', aync () => {
+        //Do delete test
+    })
+})
+```
+
 # Unit testing our database
 ## Setup
-Now that we understand the basic structure of a test, we'll be writing tests for our database to ensure the following
+Now that we understand the basic structure of a test, test grouping, and the execution order, we'll be writing tests for our database to ensure the following
 - Our export method is properly working and opening the database
 - We can perform CRUD operations on the User table
 - We can perform CRUD operations on the Tweets table
@@ -97,6 +124,17 @@ Now that we understand the basic structure of a test, we'll be writing tests for
 For now I've taken to creating a directory to house my unit tests under the project root ``project-root/tests/``.
 
 Create a file in the ``tests/`` directory called ``database.test.js``, the rest of this section will be working in that file.
+
+## Test group
+We can start building our test by creating a group for our user-related CRUD tests using the ``describe(name,function)`` method we talked about earlier. 
+
+The name we choose for our test description and group description doesn't really matter, it just needs to be descriptive. I'm using a descriptive format that reminds me of scopes in programming since that narrows the scope for me immediately.
+
+```javascript
+describe('Database:UsersCRUD', () => {
+    // We'll write our tests here
+})
+```
 
 ## Testing whether our database opens correctly.
 Our first objective is to test whether our database is correctly being opened and exported by our database module.
@@ -123,17 +161,26 @@ To test for this structure, we use the following expectation functions.
 import { openDb } from '../server/database';
 import sqlite3 from 'sqlite3';
 
-async function test_open() {
-    const db = await openDb();
-    expect(db).toEqual(
-        expect.objectContaining({
-            config: expect.anything(),
-            db: expect.any(sqlite3.Database)
-        })
-    ); 
-}
+describe('Database:UsersCRUD', () => {
+    var db;
+    // User data
+    const username = 'db_users_rathma';
+    const password = 'somepass';
+    const new_password = 'newpassword';
 
-test('Database:Open', test_open);
+    var res;
+
+    // Open Database
+    test('Database:UsersCRUD:OpenDb', async () => {
+        db = await openDb();
+        expect(db).toEqual(
+            expect.objectContaining({
+                config: expect.anything(),
+                db: expect.any(sqlite3.Database)
+            })
+        ); 
+    })
+})
 ```
 
 Then we can run our test
@@ -159,37 +206,53 @@ The only new expectation tests I used here were
 
 Everything else should look familiar, other than maybe the sql.
 ```javascript
-async function test_crud_users() {
-    const db = await openDb();
+describe('Database:UsersCRUD', () => {
+    var db;
     // User data
-    const username = 'rathma';
+    const username = 'db_users_rathma';
     const password = 'somepass';
     const new_password = 'newpassword';
 
-    // Create/insert
-    await db.exec(`INSERT INTO users (username, password) VALUES ('${username}','${password}');`)
+    var res;
 
-    //read/fetch
-    var res = await db.get('SELECT * FROM users;');
-    expect(res).toEqual(expect.objectContaining({
-        username: expect.stringMatching(username),
-        password: expect.stringMatching(password)
-    }));
+    // Open Database
+    test('Database:UsersCRUD:OpenDb', async () => {
+        db = await openDb();
+        expect(db).toEqual(
+            expect.objectContaining({
+                config: expect.anything(),
+                db: expect.any(sqlite3.Database)
+            })
+        ); 
+    })
+
+    // Create/insert
+    test('Database:UsersCRUD:CreateRead', async () => {
+        await db.exec(`INSERT INTO users (username, password) VALUES ('${username}','${password}');`)
+        //read/fetch
+        res = await db.get('SELECT * FROM users;');
+        expect(res).toEqual(expect.objectContaining({
+            username: expect.stringMatching(username),
+            password: expect.stringMatching(password)
+        }));
+    });
 
     //Update
-    await db.run(`UPDATE users SET password = '${new_password}' WHERE username = '${username}';`);
-    res = await db.get(`SELECT password FROM users WHERE username = '${username}';`);
-    expect(res).toEqual(expect.objectContaining({
-        password: expect.stringMatching(new_password)
-    }));
+    test('Database:UsersCRUD:Update', async () => {
+        await db.run(`UPDATE users SET password = '${new_password}' WHERE username = '${username}';`);
+        res = await db.get(`SELECT password FROM users WHERE username = '${username}';`);
+        expect(res).toEqual(expect.objectContaining({
+            password: expect.stringMatching(new_password)
+        }));
+    });
 
     //Delete
-    await db.exec(`DELETE FROM users WHERE username = '${username}';`);
-    res = await db.get(`SELECT * FROM users WHERE username = '${username}';`)
-    expect(res).toBeUndefined();
-}
-
-test('Database:CRUD', test_crud_users);
+    test('Database:UsersCRUD:Delete', async () => {
+        await db.exec(`DELETE FROM users WHERE username = '${username}';`);
+        res = await db.get(`SELECT * FROM users WHERE username = '${username}';`)
+        expect(res).toBeUndefined();
+    });
+});
 ```
 
 If we run this test, we can see it passes with flying colors
@@ -210,27 +273,30 @@ CONSTRAINT fk_userid FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCA
 
 This creates a constraint on the tweet to delete this database entry if the forerign key we're referencing is deleted. So let's verify that this actually works.
 
-I tacked my test onto the end of my ``Database:Tweets`` test method, so we already have a user defined. There isn't anything here that you haven't seen yet. The test is similar to our CRUD delete test, where we test for undefined after deleting a user. The only difference is we're querying the tweets table to make sure that they get deleted.
+I tacked my test onto the end of my ``Database:Tweets`` test group, so we already have a user defined. There isn't anything here that you haven't seen yet. The test is similar to our CRUD delete test, where we test for undefined after deleting a user. The only difference is we're querying the tweets table to make sure that they get deleted.
 
 ```javascript
-async function test_tweets() {
+describe('Database:Tweets', () => {
     ...
-    // Test for tweet constraints
-    // We'll insert a few tweets real quick
-    await db.exec(`INSERT INTO tweets (user_id,contents) VALUES (${user_id}, '${content}'), (${user_id}, '${content}'), (${user_id}, '${content}');`);
-    // Make sure they exist and we can get at least one
-    res = await db.get(`SELECT * FROM tweets WHERE user_id = ${user_id};`);
-    expect(res).toEqual(expect.objectContaining({
-        id: expect.anything(),
-        contents: expect.anything(),
-        user_id: expect.anything()
-    }));
-    // Delete our user
-    await db.exec(`DELETE FROM users WHERE username = '${username}';`);
-    // Try to fetch a tweet, should all be deleted
-    res = await db.get(`SELECT * FROM tweets WHERE user_id = ${user_id};`);
-    expect(res).toBeUndefined();
-}
+
+    test('Database:Tweets:Constraints', async () => {
+        // Test for tweet constraints
+        // We'll insert a few tweets real quick
+        await db.exec(`INSERT INTO tweets (user_id,contents) VALUES (${user_id}, '${content}'), (${user_id}, '${content}'), (${user_id}, '${content}');`);
+        // MAke sure they exist and we can get at least one
+        res = await db.get(`SELECT * FROM tweets WHERE user_id = ${user_id};`);
+        expect(res).toEqual(expect.objectContaining({
+            id: expect.anything(),
+            contents: expect.anything(),
+            user_id: expect.anything()
+        }));
+        // Delete our user
+        await db.exec(`DELETE FROM users WHERE username = '${username}';`);
+        // Try to fetch a tweet, should all be deleted
+        res = await db.get(`SELECT * FROM tweets WHERE user_id = ${user_id};`);
+        expect(res).toBeUndefined();
+    })
+})
 ```
 
 Our final test results....
