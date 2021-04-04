@@ -94,7 +94,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      7 min read
+      8 min read
     
 </span></p>
 
@@ -131,10 +131,16 @@ window.onload = wrap_img;
 </ul>
 </li>
 <li class="toc-entry toc-h1"><a href="#setting-up-jest">Setting up Jest</a></li>
-<li class="toc-entry toc-h1"><a href="#writing-a-basic-test">Writing a basic test</a></li>
+<li class="toc-entry toc-h1"><a href="#writing-a-basic-test">Writing a basic test</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#order-of-execution">Order of execution</a></li>
+<li class="toc-entry toc-h2"><a href="#grouping-tests">Grouping tests</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h1"><a href="#unit-testing-our-database">Unit testing our database</a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#setup">Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#test-group">Test group</a></li>
 <li class="toc-entry toc-h2"><a href="#testing-whether-our-database-opens-correctly">Testing whether our database opens correctly.</a></li>
 <li class="toc-entry toc-h2"><a href="#unit-testing-crud-functionality">Unit testing CRUD functionality</a></li>
 <li class="toc-entry toc-h2"><a href="#unit-testing-tweet-constraints">Unit testing tweet constraints</a></li>
@@ -221,11 +227,39 @@ window.onload = wrap_img;
 </code></pre></div></div>
 <p>I highly suggest using the <a href="https://jestjs.io/docs/expect">expect reference</a>, or the <a href="https://jestjs.io/docs/api">API itself</a> to guide you in creating your tests.</p>
 
+<h2 id="order-of-execution">
+<a class="anchor" href="#order-of-execution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Order of execution</h2>
+<p>By default, at the file-level, jest runs tests in parallel. However within these files, tests are run in sequence.</p>
+
+<h2 id="grouping-tests">
+<a class="anchor" href="#grouping-tests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Grouping tests</h2>
+<p>While you can stuff a bunch of <code class="language-plaintext highlighter-rouge">expect()</code> statements inside of a single test, it’s probably better practice to keep the scope of each test a bit more narrow. We can use the <code class="language-plaintext highlighter-rouge">describe(name, function)</code> method to group similar tests together.</p>
+
+<p>A somewhat related example</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD:Insert</span><span class="dl">'</span><span class="p">,</span> <span class="nx">aync</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">//Do insert test</span>
+    <span class="p">})</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD:Fetch</span><span class="dl">'</span><span class="p">,</span> <span class="nx">aync</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">//Do fetch test</span>
+    <span class="p">})</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD:Update</span><span class="dl">'</span><span class="p">,</span> <span class="nx">aync</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">//Do update test</span>
+    <span class="p">})</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD:Delete</span><span class="dl">'</span><span class="p">,</span> <span class="nx">aync</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">//Do delete test</span>
+    <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
 <h1 id="unit-testing-our-database">
 <a class="anchor" href="#unit-testing-our-database" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unit testing our database</h1>
 <h2 id="setup">
 <a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
-<p>Now that we understand the basic structure of a test, we’ll be writing tests for our database to ensure the following</p>
+<p>Now that we understand the basic structure of a test, test grouping, and the execution order, we’ll be writing tests for our database to ensure the following</p>
 <ul>
   <li>Our export method is properly working and opening the database</li>
   <li>We can perform CRUD operations on the User table</li>
@@ -236,6 +270,17 @@ window.onload = wrap_img;
 <p>For now I’ve taken to creating a directory to house my unit tests under the project root <code class="language-plaintext highlighter-rouge">project-root/tests/</code>.</p>
 
 <p>Create a file in the <code class="language-plaintext highlighter-rouge">tests/</code> directory called <code class="language-plaintext highlighter-rouge">database.test.js</code>, the rest of this section will be working in that file.</p>
+
+<h2 id="test-group">
+<a class="anchor" href="#test-group" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test group</h2>
+<p>We can start building our test by creating a group for our user-related CRUD tests using the <code class="language-plaintext highlighter-rouge">describe(name,function)</code> method we talked about earlier.</p>
+
+<p>The name we choose for our test description and group description doesn’t really matter, it just needs to be descriptive. I’m using a descriptive format that reminds me of scopes in programming since that narrows the scope for me immediately.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// We'll write our tests here</span>
+<span class="p">})</span>
+</code></pre></div></div>
 
 <h2 id="testing-whether-our-database-opens-correctly">
 <a class="anchor" href="#testing-whether-our-database-opens-correctly" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing whether our database opens correctly.</h2>
@@ -267,17 +312,26 @@ window.onload = wrap_img;
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">openDb</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../server/database</span><span class="dl">'</span><span class="p">;</span>
 <span class="k">import</span> <span class="nx">sqlite3</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">sqlite3</span><span class="dl">'</span><span class="p">;</span>
 
-<span class="k">async</span> <span class="kd">function</span> <span class="nx">test_open</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">db</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span>
-        <span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
-            <span class="na">config</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
-            <span class="na">db</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span><span class="p">)</span>
-        <span class="p">})</span>
-    <span class="p">);</span> 
-<span class="p">}</span>
+<span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">db</span><span class="p">;</span>
+    <span class="c1">// User data</span>
+    <span class="kd">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">db_users_rathma</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">somepass</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">new_password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">newpassword</span><span class="dl">'</span><span class="p">;</span>
 
-<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:Open</span><span class="dl">'</span><span class="p">,</span> <span class="nx">test_open</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">res</span><span class="p">;</span>
+
+    <span class="c1">// Open Database</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:OpenDb</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">db</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span>
+            <span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+                <span class="na">config</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+                <span class="na">db</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span><span class="p">)</span>
+            <span class="p">})</span>
+        <span class="p">);</span> 
+    <span class="p">})</span>
+<span class="p">})</span>
 </code></pre></div></div>
 
 <p>Then we can run our test</p>
@@ -308,37 +362,53 @@ window.onload = wrap_img;
 </ul>
 
 <p>Everything else should look familiar, other than maybe the sql.</p>
-<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">test_crud_users</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">db</span><span class="p">;</span>
     <span class="c1">// User data</span>
-    <span class="kd">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">rathma</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">db_users_rathma</span><span class="dl">'</span><span class="p">;</span>
     <span class="kd">const</span> <span class="nx">password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">somepass</span><span class="dl">'</span><span class="p">;</span>
     <span class="kd">const</span> <span class="nx">new_password</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">newpassword</span><span class="dl">'</span><span class="p">;</span>
 
-    <span class="c1">// Create/insert</span>
-    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO users (username, password) VALUES ('</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">','</span><span class="p">${</span><span class="nx">password</span><span class="p">}</span><span class="s2">');`</span><span class="p">)</span>
+    <span class="kd">var</span> <span class="nx">res</span><span class="p">;</span>
 
-    <span class="c1">//read/fetch</span>
-    <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM users;</span><span class="dl">'</span><span class="p">);</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
-        <span class="na">username</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">username</span><span class="p">),</span>
-        <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span>
-    <span class="p">}));</span>
+    <span class="c1">// Open Database</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:OpenDb</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">db</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">openDb</span><span class="p">();</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">db</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span>
+            <span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+                <span class="na">config</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+                <span class="na">db</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span><span class="p">)</span>
+            <span class="p">})</span>
+        <span class="p">);</span> 
+    <span class="p">})</span>
+
+    <span class="c1">// Create/insert</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:CreateRead</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO users (username, password) VALUES ('</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">','</span><span class="p">${</span><span class="nx">password</span><span class="p">}</span><span class="s2">');`</span><span class="p">)</span>
+        <span class="c1">//read/fetch</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM users;</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">username</span><span class="p">),</span>
+            <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span>
+        <span class="p">}));</span>
+    <span class="p">});</span>
 
     <span class="c1">//Update</span>
-    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">`UPDATE users SET password = '</span><span class="p">${</span><span class="nx">new_password</span><span class="p">}</span><span class="s2">' WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
-    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT password FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
-        <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">new_password</span><span class="p">)</span>
-    <span class="p">}));</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:Update</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">`UPDATE users SET password = '</span><span class="p">${</span><span class="nx">new_password</span><span class="p">}</span><span class="s2">' WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT password FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+            <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">new_password</span><span class="p">)</span>
+        <span class="p">}));</span>
+    <span class="p">});</span>
 
     <span class="c1">//Delete</span>
-    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
-    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">)</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
-<span class="p">}</span>
-
-<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:CRUD</span><span class="dl">'</span><span class="p">,</span> <span class="nx">test_crud_users</span><span class="p">);</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:Delete</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">)</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">});</span>
 </code></pre></div></div>
 
 <p>If we run this test, we can see it passes with flying colors</p>
@@ -358,26 +428,29 @@ window.onload = wrap_img;
 
 <p>This creates a constraint on the tweet to delete this database entry if the forerign key we’re referencing is deleted. So let’s verify that this actually works.</p>
 
-<p>I tacked my test onto the end of my <code class="language-plaintext highlighter-rouge">Database:Tweets</code> test method, so we already have a user defined. There isn’t anything here that you haven’t seen yet. The test is similar to our CRUD delete test, where we test for undefined after deleting a user. The only difference is we’re querying the tweets table to make sure that they get deleted.</p>
+<p>I tacked my test onto the end of my <code class="language-plaintext highlighter-rouge">Database:Tweets</code> test group, so we already have a user defined. There isn’t anything here that you haven’t seen yet. The test is similar to our CRUD delete test, where we test for undefined after deleting a user. The only difference is we’re querying the tweets table to make sure that they get deleted.</p>
 
-<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">test_tweets</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:Tweets</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="p">...</span>
-    <span class="c1">// Test for tweet constraints</span>
-    <span class="c1">// We'll insert a few tweets real quick</span>
-    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO tweets (user_id,contents) VALUES (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">');`</span><span class="p">);</span>
-    <span class="c1">// Make sure they exist and we can get at least one</span>
-    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
-        <span class="na">id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
-        <span class="na">contents</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
-        <span class="na">user_id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">()</span>
-    <span class="p">}));</span>
-    <span class="c1">// Delete our user</span>
-    <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
-    <span class="c1">// Try to fetch a tweet, should all be deleted</span>
-    <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
-    <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
-<span class="p">}</span>
+
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:Tweets:Constraints</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">// Test for tweet constraints</span>
+        <span class="c1">// We'll insert a few tweets real quick</span>
+        <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO tweets (user_id,contents) VALUES (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">'), (</span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">, '</span><span class="p">${</span><span class="nx">content</span><span class="p">}</span><span class="s2">');`</span><span class="p">);</span>
+        <span class="c1">// MAke sure they exist and we can get at least one</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
+            <span class="na">id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+            <span class="na">contents</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">(),</span>
+            <span class="na">user_id</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">anything</span><span class="p">()</span>
+        <span class="p">}));</span>
+        <span class="c1">// Delete our user</span>
+        <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`DELETE FROM users WHERE username = '</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">';`</span><span class="p">);</span>
+        <span class="c1">// Try to fetch a tweet, should all be deleted</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s2">`SELECT * FROM tweets WHERE user_id = </span><span class="p">${</span><span class="nx">user_id</span><span class="p">}</span><span class="s2">;`</span><span class="p">);</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toBeUndefined</span><span class="p">();</span>
+    <span class="p">})</span>
+<span class="p">})</span>
 </code></pre></div></div>
 
 <p>Our final test results….</p>
