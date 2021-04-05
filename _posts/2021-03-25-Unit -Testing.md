@@ -28,7 +28,7 @@ All code from this series can be found here
 
 All code from this post can be found here
 
-[https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529](https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529)
+[https://github.com/wrathofrathma/rest-express/tree/9a1d48f7de6219fcdf44ee258ba7e328c750d68b](https://github.com/wrathofrathma/rest-express/tree/9a1d48f7de6219fcdf44ee258ba7e328c750d68b)
 
 
 # Setting up Jest
@@ -230,7 +230,7 @@ describe('Database:UsersCRUD', () => {
     test('Database:UsersCRUD:CreateRead', async () => {
         await db.exec(`INSERT INTO users (username, password) VALUES ('${username}','${password}');`)
         //read/fetch
-        res = await db.get('SELECT * FROM users;');
+        res = await db.get('SELECT * FROM users WHERE username = ?;', username);
         expect(res).toEqual(expect.objectContaining({
             username: expect.stringMatching(username),
             password: expect.stringMatching(password)
