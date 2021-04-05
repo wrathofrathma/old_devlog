@@ -13,6 +13,8 @@ image: images/express.png
 # Overview
 In this post I'll be learning unit testing with the Jest framework by testing the database we built in the [previous post: Sqlite-Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html).
 
+[Next Post: Database Abstraction](https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html)
+
 ## What is Unit Testing
 Unit testing is where you test individual components of software. By testing and ensuring certain expectations from each unit/component, it's very easy to track down errors down the line and even automate testing large programs. 
 
@@ -312,6 +314,8 @@ There is so much depth in the jest framework that I didn't even scratch, but hop
 Thanks for reading!
 
 [Previous Post: Sqlite-Database](https://www.kyso.dev/express/webdev/sqlite/migrations/2021/03/23/Sqlite-Database.html)
+
+[Next Post: Database Abstraction](https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html)
 
 # References
 - [https://jestjs.io/](https://jestjs.io/)

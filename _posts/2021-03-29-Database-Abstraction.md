@@ -43,7 +43,7 @@ await db.run("INSERT INTO users (username, password) VALUES (?, ?);", [username,
 
 I tried a handful of variations with arrow functions, ``db.exec()`` instead, dropping the parameters, etc. I get the feeling that this wasn't ported to the ``sqlite`` package.
 
-## db.on('event', callback)
+### db.on('event', callback)
 After failing with that, I figured I'd try tracing sqlite errors the way [both documentations](https://www.npmjs.com/package/sqlite#tracing-sql-errors) suggest.
 
 When I create the database object, use ``db.on('some_event', [callbacks])`` to create callbacks when specific events fire on the database object. The [sqlite3 API](https://github.com/mapbox/node-sqlite3/wiki/API) states
