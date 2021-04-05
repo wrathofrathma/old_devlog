@@ -10,14 +10,14 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Building a class to abstract database interactions and error handling." />
 <meta property="og:description" content="Building a class to abstract database interactions and error handling." />
-<link rel="canonical" href="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/DatabaseModel.html" />
-<meta property="og:url" content="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/DatabaseModel.html" />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html" />
 <meta property="og:site_name" content="Rathma’s Devlog" />
 <meta property="og:image" content="https://www.kyso.dev/images/express.png" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2021-03-29T00:00:00-05:00" />
 <script type="application/ld+json">
-{"description":"Building a class to abstract database interactions and error handling.","url":"https://www.kyso.dev/express/webdev/sqlite/2021/03/29/DatabaseModel.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (4/X): Database abstraction","dateModified":"2021-03-29T00:00:00-05:00","datePublished":"2021-03-29T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/sqlite/2021/03/29/DatabaseModel.html"},"@context":"https://schema.org"}</script>
+{"description":"Building a class to abstract database interactions and error handling.","url":"https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (4/X): Database abstraction","dateModified":"2021-03-29T00:00:00-05:00","datePublished":"2021-03-29T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
@@ -120,9 +120,9 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h1"><a href="#overview">Overview</a></li>
 <li class="toc-entry toc-h1"><a href="#sqlite-error-handling">Sqlite error handling</a>
 <ul>
-<li class="toc-entry toc-h2"><a href="#callbacks">Callbacks</a></li>
-<li class="toc-entry toc-h2"><a href="#dbonevent-callback">db.on(‘event’, callback)</a>
+<li class="toc-entry toc-h2"><a href="#callbacks">Callbacks</a>
 <ul>
+<li class="toc-entry toc-h3"><a href="#dbonevent-callback">db.on(‘event’, callback)</a></li>
 <li class="toc-entry toc-h3"><a href="#dbrunsql-params-callback">db.run(sql, params, callback)</a></li>
 <li class="toc-entry toc-h3"><a href="#dbexecsql-callback">db.exec(sql, callback)</a></li>
 <li class="toc-entry toc-h3"><a href="#exception-catching">Exception catching</a></li>
@@ -199,8 +199,8 @@ window.onload = wrap_img;
 
 <p>I tried a handful of variations with arrow functions, <code class="language-plaintext highlighter-rouge">db.exec()</code> instead, dropping the parameters, etc. I get the feeling that this wasn’t ported to the <code class="language-plaintext highlighter-rouge">sqlite</code> package.</p>
 
-<h2 id="dbonevent-callback">
-<a class="anchor" href="#dbonevent-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>db.on(‘event’, callback)</h2>
+<h3 id="dbonevent-callback">
+<a class="anchor" href="#dbonevent-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>db.on(‘event’, callback)</h3>
 <p>After failing with that, I figured I’d try tracing sqlite errors the way <a href="https://www.npmjs.com/package/sqlite#tracing-sql-errors">both documentations</a> suggest.</p>
 
 <p>When I create the database object, use <code class="language-plaintext highlighter-rouge">db.on('some_event', [callbacks])</code> to create callbacks when specific events fire on the database object. The <a href="https://github.com/mapbox/node-sqlite3/wiki/API">sqlite3 API</a> states</p>
@@ -691,7 +691,7 @@ window.onload = wrap_img;
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/express/webdev/sqlite/2021/03/29/DatabaseModel.html" hidden></a>
+</script><a class="u-url" href="/express/webdev/sqlite/2021/03/29/Database-Abstraction.html" hidden></a>
 </article>
       </div>
     </main><footer class="site-footer h-card">
