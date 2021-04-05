@@ -171,7 +171,7 @@ window.onload = wrap_img;
 
 <p>All code from this post can be found here</p>
 
-<p><a href="https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529">https://github.com/wrathofrathma/rest-express/tree/b86cad2b5feafbd807f6d60f789f471dff448529</a></p>
+<p><a href="https://github.com/wrathofrathma/rest-express/tree/9a1d48f7de6219fcdf44ee258ba7e328c750d68b">https://github.com/wrathofrathma/rest-express/tree/9a1d48f7de6219fcdf44ee258ba7e328c750d68b</a></p>
 
 <h1 id="setting-up-jest">
 <a class="anchor" href="#setting-up-jest" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up Jest</h1>
@@ -386,7 +386,7 @@ window.onload = wrap_img;
     <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Database:UsersCRUD:CreateRead</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
         <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">`INSERT INTO users (username, password) VALUES ('</span><span class="p">${</span><span class="nx">username</span><span class="p">}</span><span class="s2">','</span><span class="p">${</span><span class="nx">password</span><span class="p">}</span><span class="s2">');`</span><span class="p">)</span>
         <span class="c1">//read/fetch</span>
-        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM users;</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">db</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM users WHERE username = ?;</span><span class="dl">'</span><span class="p">,</span> <span class="nx">username</span><span class="p">);</span>
         <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">objectContaining</span><span class="p">({</span>
             <span class="na">username</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">username</span><span class="p">),</span>
             <span class="na">password</span><span class="p">:</span> <span class="nx">expect</span><span class="p">.</span><span class="nx">stringMatching</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span>
