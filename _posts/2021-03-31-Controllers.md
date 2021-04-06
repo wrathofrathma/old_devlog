@@ -17,7 +17,7 @@ Now that most of the foundation is laid, we can finally start building out endpo
 
 All code from this series can be found here
 
-https://github.com/wrathofrathma/rest-express
+[https://github.com/wrathofrathma/rest-express](https://github.com/wrathofrathma/rest-express)
 
 All code from this post can be found here
 
@@ -365,7 +365,7 @@ function parseAuthToken(req) {
 
 export default async function (req, res, next) {
     const token = parseAuthToken(req);
-    return await jwt.verify(token, "SomeRandomSekrit", async (err, decoded) =>Now the GET request will return the authenticated user's information. Not that this is useful, but in practice we have all the tools we need to build the rest of the API.  {
+    return await jwt.verify(token, "SomeRandomSekrit", async (err, decoded) => {
         if(err) 
             next(new Error("Invalid token"));
         req.user = await User.get({id: decoded.data.id});

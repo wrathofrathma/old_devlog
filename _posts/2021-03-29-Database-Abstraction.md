@@ -17,6 +17,8 @@ So this post will cover building these abstractions and sanitizing input.
 
 [Previous Post: Unit Testing](https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html)
 
+[Next post: Route controllers, services, error handling, authentication, and auth middleware](https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html)
+
 All code from this project can be found here
 
 [https://github.com/wrathofrathma/rest-express](https://github.com/wrathofrathma/rest-express)
@@ -451,6 +453,8 @@ describe('Models:User', () => {
 Even though we could have just used some sort of pre-baked ORM like sequelize, I think there's a lot of value in designing stuff by hand occasionally. When I finish with the REST functionality, I'll try out sequelize and firestore as alternative storage solutions. 
 
 [Previous Post: Unit Testing](https://www.kyso.dev/express/webdev/jest/unit%20test/sqlite/2021/03/25/Unit-Testing.html)
+
+[Next post: Route controllers, services, error handling, authentication, and auth middleware](https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html)
 
 # References
 - [Sqlite3 API](https://github.com/mapbox/node-sqlite3/wiki/API)
