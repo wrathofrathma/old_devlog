@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a REST API with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Creating a REST API with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Route controllers, services, basic authentication, express error handling" />
+<meta property="og:description" content="Route controllers, services, basic authentication, express error handling" />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/express.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-31T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Route controllers, services, basic authentication, express error handling","url":"https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html","@type":"BlogPosting","headline":"Creating a REST API with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware","dateModified":"2021-03-31T00:00:00-05:00","datePublished":"2021-03-31T00:00:00-05:00","image":"https://www.kyso.dev/images/express.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a REST API with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware</h1><p class="page-description">Route controllers, services, basic authentication, express error handling</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-03-31T00:00:00-05:00" itemprop="datePublished">
+        Mar 31, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      14 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a></li>
+<li class="toc-entry toc-h1"><a href="#controllers-services-models">Controllers, Services, Models</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#controllers">Controllers</a></li>
+<li class="toc-entry toc-h2"><a href="#services">Services</a></li>
+<li class="toc-entry toc-h2"><a href="#models">Models</a></li>
+<li class="toc-entry toc-h2"><a href="#middleware">Middleware</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#more-useful-errors">More useful errors</a></li>
+<li class="toc-entry toc-h1"><a href="#building-our-auth-endpoint">Building our auth endpoint</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup">Setup</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#controller">Controller</a></li>
+<li class="toc-entry toc-h3"><a href="#router">Router</a></li>
+<li class="toc-entry toc-h3"><a href="#connecting-the-router">Connecting the router</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#auth-service">Auth service</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#setup-1">Setup</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#argon2">argon2</a></li>
+<li class="toc-entry toc-h4"><a href="#jsonwebtoken">jsonwebtoken</a></li>
+<li class="toc-entry toc-h4"><a href="#services-folder">services folder</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#authservicejs">AuthService.js</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#login">Login</a></li>
+<li class="toc-entry toc-h4"><a href="#registration">Registration</a></li>
+<li class="toc-entry toc-h4"><a href="#token-generation">Token generation</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#authcontrollerjs">AuthController.js</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#auth-middleware">Auth middleware</a></li>
+<li class="toc-entry toc-h1"><a href="#adding-authenticated-user-endpoint">Adding authenticated user endpoint</a></li>
+<li class="toc-entry toc-h1"><a href="#validating-user-access-to-a-resource">Validating user access to a resource</a></li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#references">References</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>Now that most of the foundation is laid, we can finally start building out endpoint to the outside world. This process will involve building route controllers, a service layer between the models and controllers, more useful errors, setting up basic authentication, and adding auth middleware. So this post will be a bit longer than the others.</p>
+
+<p><a href="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html">Previous post: Database Abstraction</a></p>
+
+<p>All code from this series can be found here</p>
+
+<p>https://github.com/wrathofrathma/rest-express</p>
+
+<p>All code from this post can be found here</p>
+
+<p><a href="https://github.com/wrathofrathma/rest-express/tree/ae018194343e21cee3358203a993d0a4b944dae0">Git repo at the time of this post</a></p>
+
+<h1 id="controllers-services-models">
+<a class="anchor" href="#controllers-services-models" aria-hidden="true"><span class="octicon octicon-link"></span></a>Controllers, Services, Models</h1>
+<p>Controllers, services, models, and middleware each serve a unique purpose in the layers of abstraction and flow execution of our backend. I’ve adopted a 3 layer approach similar to what’s described in this <a href="https://softwareontheroad.com/ideal-nodejs-project-structure/">Bulletproof node.js project architecture</a> article. Adonis.js and other major frameworks have similar concepts, but perhaps with slightly different goals for specific components.</p>
+
+<h2 id="controllers">
+<a class="anchor" href="#controllers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Controllers</h2>
+<p>Controllers are meant to handle groups of similar requests that hit the route endpoints of our API. These are the functions that are exposd to the world.</p>
+
+<p>An example would be if we had the endpoint for user related requests at <code class="language-plaintext highlighter-rouge">http://localhost:port/api/user</code>, we might build a <code class="language-plaintext highlighter-rouge">UserController</code> class or object with functions to handle the various user-related tasks. Allowing us to keep our route files clean and our logic in one place.</p>
+
+<p>The concept of a controller isn’t new at all, most major frameworks have their own implementation of a controller to handle route requests. You can put most of your logic here, but I think the logic inside of controllers should be related to offloading the request to the correct service, handling errors, etc. All business logic should be saved for the service layer.</p>
+
+<h2 id="services">
+<a class="anchor" href="#services" aria-hidden="true"><span class="octicon octicon-link"></span></a>Services</h2>
+<p>Services are the next layer of abstraction, they typically contain all of the business logic and handle the “actions” of the request. The example <code class="language-plaintext highlighter-rouge">http://localhost:port/api/user</code> endpoint I mentioned earlier would likely also have a <code class="language-plaintext highlighter-rouge">UserService</code> class defined somewhere to handle majority of the logic related to user tasks. This is typically the layer we would interact with the database models.</p>
+
+<p>One of the upsides of offloading all of the major task logic to the service layer is that if we throw an error at this level, we can catch it in our controller and propagate it to express.js’ error handler.</p>
+
+<h2 id="models">
+<a class="anchor" href="#models" aria-hidden="true"><span class="octicon octicon-link"></span></a>Models</h2>
+<p>Models are just some form of database abstraction. Using models allows us to define a very pretty interface to interact with our database and allows us to swap database backends without breaking outside functionality if we keep the interface the same. Models typically contain all database-related logic, sanitization, error handling, etc.</p>
+
+<h2 id="middleware">
+<a class="anchor" href="#middleware" aria-hidden="true"><span class="octicon octicon-link"></span></a>Middleware</h2>
+<p>When our API receives a request, typically it’ll go to the defined route controller method, but there are times when we want to perform some action on the request before the controller touches it. Sometimes we want to log the request, maybe process the body of the request, check whether the request has valid authentication, etc. We can do all of this by defining middleware functions that run before our controller methods.</p>
+
+<p>This is another one of those huge concepts in web dev that you’ll see on every major framework.</p>
+
+<h1 id="more-useful-errors">
+<a class="anchor" href="#more-useful-errors" aria-hidden="true"><span class="octicon octicon-link"></span></a>More useful errors</h1>
+<p>Now that we’re dealing with express.js endpoints, now is a good time to talk about how we can use express.js to send useful errors to our users.</p>
+
+<p>Uncaught errors will crash our node.js project, however if we catch them at the controller level, we can propagate them to express.js’ error handler by using the <code class="language-plaintext highlighter-rouge">next()</code> method similar to how we would call the next middleware method. The difference is that we are passing the error object <code class="language-plaintext highlighter-rouge">next(err)</code> which won’t match the function identities of any route endpoint methods or middleware which all take 3 arguments <code class="language-plaintext highlighter-rouge">(req, res, next)</code>.</p>
+
+<p>You can build your own error handler, but express’ default error handler is good enough for the purposes of this exercise as long as we tailor our error messages to their handler. If you’re intersted in using your own error handler, refer to <a href="https://expressjs.com/en/guide/error-handling.html">express’ error handling page</a>.</p>
+
+<p>By default, express’ error handler checks for an <code class="language-plaintext highlighter-rouge">err.status</code> or <code class="language-plaintext highlighter-rouge">err.statusCode</code> property that’s used to generate the HTML of the error and set the status of the request. I also notice the <code class="language-plaintext highlighter-rouge">err.message</code> that’s set when you <code class="language-plaintext highlighter-rouge">throw new Error("some message");</code> also appears, but I’m not sure if that’s part of the stack trace that’s left out in production environments.</p>
+
+<p>For now we can get away with a basic exception class.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Exception</span> <span class="kd">extends</span> <span class="nb">Error</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">({</span><span class="nx">message</span><span class="p">,</span> <span class="nx">status</span><span class="p">})</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="nx">message</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">status</span> <span class="o">=</span> <span class="nx">status</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Exception</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>I put my exceptions in their own <code class="language-plaintext highlighter-rouge">server/exceptions/</code> directory with the expectation that someday I might built more tailored ones. This code specifically lives in <code class="language-plaintext highlighter-rouge">server/exceptions/GenericException.js</code>.</p>
+
+<h1 id="building-our-auth-endpoint">
+<a class="anchor" href="#building-our-auth-endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building our auth endpoint</h1>
+<p>The first endpoint we need to build is one for users to register and login through. That’s going to be our auth endpoint. This will involve us creating a <code class="language-plaintext highlighter-rouge">router</code> to catch the requests, an <code class="language-plaintext highlighter-rouge">AuthController</code> to contain the methods that will handle the route requests and an <code class="language-plaintext highlighter-rouge">AuthService</code> to handle registration and login logic.</p>
+
+<h2 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<h3 id="controller">
+<a class="anchor" href="#controller" aria-hidden="true"><span class="octicon octicon-link"></span></a>Controller</h3>
+<p>To get started, we want to create a <code class="language-plaintext highlighter-rouge">server/controllers/</code> folder. Inside of it we’re going to create our <code class="language-plaintext highlighter-rouge">AuthController.js</code>.</p>
+
+<p>Starting out, we don’t need anything fancy, just something to test with</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">AuthController</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">login</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Hello world</span><span class="dl">"</span><span class="p">})</span>
+    <span class="p">},</span>
+
+    <span class="nx">register</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Hello world</span><span class="dl">"</span><span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">AuthController</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now we want to connect this controller to our router.</p>
+
+<h3 id="router">
+<a class="anchor" href="#router" aria-hidden="true"><span class="octicon octicon-link"></span></a>Router</h3>
+
+<p>When we generated our project using the <code class="language-plaintext highlighter-rouge">express-generator</code>, it created a <code class="language-plaintext highlighter-rouge">routes/</code> folder that we put into <code class="language-plaintext highlighter-rouge">server/routes</code>.</p>
+
+<p>In that folder we want to create a file <code class="language-plaintext highlighter-rouge">auth.js</code> that contains the following.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">AuthController</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../controllers/AuthController</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="nx">AuthController</span><span class="p">.</span><span class="nx">login</span><span class="p">);</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/register</span><span class="dl">'</span><span class="p">,</span> <span class="nx">AuthController</span><span class="p">.</span><span class="nx">register</span><span class="p">);</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>What’s happening is we’re using the <code class="language-plaintext highlighter-rouge">express.Router</code> class to setup new routes and linking them to our <code class="language-plaintext highlighter-rouge">AuthController</code>.</p>
+
+<h3 id="connecting-the-router">
+<a class="anchor" href="#connecting-the-router" aria-hidden="true"><span class="octicon octicon-link"></span></a>Connecting the router</h3>
+<p>Lastly, we need to tell our app to use the new router.</p>
+
+<p>In <code class="language-plaintext highlighter-rouge">server/app.js</code>, we want to add the lines to connect our main express instance to our router on the <code class="language-plaintext highlighter-rouge">/auth</code> endpoint.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">indexRouter</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./routes/index</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">authRouter</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./routes/auth</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="p">...</span> 
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="nx">indexRouter</span><span class="p">);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">/auth</span><span class="dl">'</span><span class="p">,</span> <span class="nx">authRouter</span><span class="p">);</span>
+
+<span class="p">...</span>
+</code></pre></div></div>
+
+<p>Now if we use some RESTClient and hit our <code class="language-plaintext highlighter-rouge">localhost:3000/auth/login</code>, and <code class="language-plaintext highlighter-rouge">localhost:3000/auth/register</code> endpoints with POST requests, we will receive the response</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="auth-service">
+<a class="anchor" href="#auth-service" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auth service</h2>
+
+<p>This is the layer that will handle all of the business logic. It doesn’t care about the <code class="language-plaintext highlighter-rouge">req, res, next</code> objects in the express routing methods, just what we use.</p>
+
+<p>I modeled this service off of <a href="https://softwareontheroad.com/nodejs-jwt-authentication-oauth/">You don’t need passport.js - Guide to node.js authentication</a>. There are a few differences, but the original article is worth the read.</p>
+
+<h3 id="setup-1">
+<a class="anchor" href="#setup-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h3>
+<p>We’re going to be using a few different libraries to assist us with our authentication.</p>
+
+<h4 id="argon2">
+<a class="anchor" href="#argon2" aria-hidden="true"><span class="octicon octicon-link"></span></a>argon2</h4>
+<p>The argon2 library is a javascript cryptographic library. We’re going to be using it to hash our passwords before saving them to the database and verifying user-passwords.</p>
+
+<p>Coincidentally it also protects against timing-based attacks. So that’s neat too.</p>
+
+<h4 id="jsonwebtoken">
+<a class="anchor" href="#jsonwebtoken" aria-hidden="true"><span class="octicon octicon-link"></span></a>jsonwebtoken</h4>
+<p>jsonwebtoken or JWT at a basic level is just a sign/encrypted json object. They’re commonly used for carrying authentication and user data, and in this project we’ll be using them for authentication.</p>
+
+<p>To install these libraries</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install argon2 jsonwebtoken
+</code></pre></div></div>
+
+<h4 id="services-folder">
+<a class="anchor" href="#services-folder" aria-hidden="true"><span class="octicon octicon-link"></span></a>services folder</h4>
+<p>Lastly, much like our models, controllers, exceptions, etc…, we are going to create a dedicated services folder at <code class="language-plaintext highlighter-rouge">server/services/</code>.</p>
+
+<h3 id="authservicejs">
+<a class="anchor" href="#authservicejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>AuthService.js</h3>
+
+<h4 id="login">
+<a class="anchor" href="#login" aria-hidden="true"><span class="octicon octicon-link"></span></a>Login</h4>
+<p>When our <code class="language-plaintext highlighter-rouge">AuthService</code> receives a login request from our <code class="language-plaintext highlighter-rouge">AuthController</code>, this is what will happen</p>
+
+<ul>
+  <li>Client sends public identification &amp; private key in the form of username/password.</li>
+  <li>Server searches the database for a matching user</li>
+  <li>If the user exists, server hashes the password and compares it to the hashed password stored in the database</li>
+  <li>If the password matches, generate a JWT to send back to the user.</li>
+</ul>
+
+<p>If either the user isn’t found or we receive invalid login details, we should expect to throw an error.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">User</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../models/UserModel</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">Exception</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../exceptions/GenericException</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">argon2</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">argon2</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">jwt</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">jsonwebtoken</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">AuthService</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">async</span> <span class="nx">login</span><span class="p">({</span><span class="nx">username</span><span class="p">,</span> <span class="nx">password</span><span class="p">})</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="kd">get</span><span class="p">({</span><span class="nx">username</span><span class="p">});</span>
+
+        <span class="kd">const</span> <span class="nx">correct_pwd</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">argon2</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">password</span><span class="p">,</span> <span class="nx">password</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">correct_pwd</span><span class="p">){</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">({</span>
+                <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Invalid login details</span><span class="dl">"</span><span class="p">,</span>
+                <span class="na">status</span><span class="p">:</span> <span class="mi">401</span><span class="p">,</span>
+                <span class="na">code</span><span class="p">:</span> <span class="dl">"</span><span class="s2">E_INVALID_LOGIN</span><span class="dl">"</span>
+            <span class="p">})</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="na">user</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">id</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+                <span class="na">username</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">username</span>
+            <span class="p">},</span>
+            <span class="na">token</span><span class="p">:</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">generateJWT</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In the above code, you can see that we’re using the <code class="language-plaintext highlighter-rouge">argon2.verify(hashedPassword, plainPassword)</code> method to validate the user password.</p>
+
+<p>I also like my services to return json to be sent back to the user by the controller layer.</p>
+
+<h4 id="registration">
+<a class="anchor" href="#registration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Registration</h4>
+<p>Registration is straightforward. If we receive a registration request we want to</p>
+
+<ul>
+  <li>Check for duplicate usernames (handled by our UserModel)</li>
+  <li>Hash the password (argon2)</li>
+  <li>Create a new user (handled by our UserModel)</li>
+  <li>Return a login token &amp; user info (we can chain our registration into a login call to handle this)</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">AuthService</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">async</span> <span class="nx">register</span><span class="p">({</span><span class="nx">username</span><span class="p">,</span> <span class="nx">password</span><span class="p">})</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+            <span class="nx">username</span><span class="p">,</span> 
+            <span class="na">password</span><span class="p">:</span> <span class="k">await</span> <span class="nx">argon2</span><span class="p">.</span><span class="nx">hash</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">login</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="token-generation">
+<a class="anchor" href="#token-generation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Token generation</h4>
+<p>In the <code class="language-plaintext highlighter-rouge">AuthService.login()</code> method we called an <code class="language-plaintext highlighter-rouge">AuthService.generateJWT()</code> method, and we’re going to define it here.</p>
+
+<p>Earlier we talked about how jsonwebtokens are mostly just encrypted/signed json objects. So we need to decide</p>
+
+<ul>
+  <li>What data we want to store in our json?</li>
+  <li>What our signature will be?</li>
+  <li>Do we want an expiration?</li>
+</ul>
+
+<p>Our data is just going to be the username &amp; userid of the user we’re authenticating, that way we can decrypt it later and find out what user is making requests with this token.</p>
+
+<p>Our signature can be anything, but you should create a strong secret and keep it out of your code. An environmental variable of some sort would be ideal I believe. We’re not doing that for our small example, but it’s just a thought for open source projects.</p>
+
+<p>Expiration doesn’t matter, but we’re setting it to 6 hours here.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">AuthService</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="nx">generateJWT</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="na">id</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">username</span>
+        <span class="p">};</span>
+
+        <span class="kd">const</span> <span class="nx">signature</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">SomeRandomSekrit</span><span class="dl">"</span><span class="p">;</span>
+        <span class="kd">const</span> <span class="nx">expiration</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">6h</span><span class="dl">"</span><span class="p">;</span>
+        
+        <span class="k">return</span> <span class="nx">jwt</span><span class="p">.</span><span class="nx">sign</span><span class="p">({</span><span class="nx">data</span><span class="p">,</span> <span class="p">},</span> <span class="nx">signature</span><span class="p">,</span> <span class="p">{</span> <span class="na">expiresIn</span><span class="p">:</span> <span class="nx">expiration</span><span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="authcontrollerjs">
+<a class="anchor" href="#authcontrollerjs" aria-hidden="true"><span class="octicon octicon-link"></span></a>AuthController.js</h3>
+<p>Now it’s time to fill our our AuthController.js we created earlier. Right now if we hit either of our endpoints, we’ll just receive the response</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We want to link our requests up to our AuthService and send the data returned from our service back to the user.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">AuthService</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../services/AuthService</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">AuthController</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">async</span> <span class="nx">login</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">login</span><span class="p">({</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">username</span><span class="p">,</span> 
+            <span class="na">password</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">password</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">login_data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">login_data</span><span class="p">);</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+
+    <span class="k">async</span> <span class="nx">register</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">username</span><span class="p">,</span> 
+            <span class="na">password</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">password</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">login_data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">login_data</span><span class="p">);</span>
+        <span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We also want to handle any errors that might be thrown and pass them to the express error handler. We can do this by adding a <code class="language-plaintext highlighter-rouge">.catch()</code> callback at the end of our calls.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">AuthController</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">async</span> <span class="nx">login</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">login</span><span class="p">({</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">username</span><span class="p">,</span> 
+            <span class="na">password</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">password</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">login_data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">login_data</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+
+    <span class="k">async</span> <span class="nx">register</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nx">AuthService</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
+            <span class="na">username</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">username</span><span class="p">,</span> 
+            <span class="na">password</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">password</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">login_data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">login_data</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now we should be able to register &amp; login our users and receive our token on the RESTClient side. Below is the response I received from a registration request, which shows that everything is working as intended.</p>
+
+<p><img src="/images/rest-express/rest-express-postman-login.png" alt="Rest client registration response"></p>
+
+<h1 id="auth-middleware">
+<a class="anchor" href="#auth-middleware" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auth middleware</h1>
+<p>Now that we’ve built our auth endpoint and users can register and login, we want to start building requests that require authentication. Before we can get to all of that, we need a convenient way to get authenticated. This is where middleware comes in.</p>
+
+<p>We know middleware is executed before the request reaches our route controllers, so if we want to authenticate a user before they hit the controller, we want to write middleware that authenticates the user. The process of authenticating a user will involve</p>
+
+<ul>
+  <li>Parsing the header for an <code class="language-plaintext highlighter-rouge">authorization</code> field that contains a <code class="language-plaintext highlighter-rouge">Bearer SOMEJWT</code>.</li>
+  <li>Splitting the JWT from the authorization string.</li>
+  <li>Validating the JWT(checking it’s not malformed or expired)</li>
+  <li>Extracting the decoded user data</li>
+  <li>Checking our database for that user</li>
+  <li>Attaching the user to the <code class="language-plaintext highlighter-rouge">req</code> object for controllers to know which user is making the calls.</li>
+  <li>Call <code class="language-plaintext highlighter-rouge">next()</code> to pass control to the controllers</li>
+</ul>
+
+<p>So let’s create a <code class="language-plaintext highlighter-rouge">server/middleware/</code> directory with an <code class="language-plaintext highlighter-rouge">AuthMiddleware.js</code> inside of it to handle all of the above requirements.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">jwt</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">jsonwebtoken</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">User</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../models/UserModel</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">parseAuthToken</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span>  <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1"> </span><span class="dl">'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">Bearer</span><span class="dl">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1"> </span><span class="dl">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="k">async</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">parseAuthToken</span><span class="p">(</span><span class="nx">req</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="nx">jwt</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="dl">"</span><span class="s2">SomeRandomSekrit</span><span class="dl">"</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">decoded</span><span class="p">)</span> <span class="o">=&gt;</span><span class="nx">Now</span> <span class="nx">the</span> <span class="nx">GET</span> <span class="nx">request</span> <span class="nx">will</span> <span class="k">return</span> <span class="nx">the</span> <span class="nx">authenticated</span> <span class="nx">user</span><span class="dl">'</span><span class="s1">s information. Not that this is useful, but in practice we have all the tools we need to build the rest of the API.  {
+        if(err) 
+            next(new Error("Invalid token"));
+        req.user = await User.get({id: decoded.data.id});
+        return next();
+    })
+    .catch((err) =&gt; {
+        next(err);
+    })
+}
+</span></code></pre></div></div>
+
+<h1 id="adding-authenticated-user-endpoint">
+<a class="anchor" href="#adding-authenticated-user-endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding authenticated user endpoint</h1>
+<p>Now to create an endpoint that requires authentication, we need to tell our express router to use our middleware. So let’s add that to our userRouter by modifying <code class="language-plaintext highlighter-rouge">server/routes/users.js</code>.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">AuthMiddleware</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../middleware/AuthMiddleware</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">AuthMiddleware</span><span class="p">);</span>
+
+<span class="cm">/* GET users listing. */</span>
+<span class="nx">router</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">respond with a resource</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now the default endpoint <code class="language-plaintext highlighter-rouge">http://localhost:3000/users</code> will throw an error if the client doesn’t include an <code class="language-plaintext highlighter-rouge">authorization</code> header or the JWT in the <code class="language-plaintext highlighter-rouge">Bearer SOMEJWT</code> string isn’t valid.</p>
+
+<p>We could also use the <code class="language-plaintext highlighter-rouge">req.user</code> object that was attached by the auth middleware if we wanted to.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">AuthMiddleware</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../middleware/AuthMiddleware</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">AuthMiddleware</span><span class="p">);</span>
+
+<span class="cm">/* GET users listing. */</span>
+<span class="nx">router</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span>
+      <span class="na">id</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+      <span class="na">username</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">router</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>This method isn’t really useful, but shows how we might access the user object in the req object.</p>
+
+<h1 id="validating-user-access-to-a-resource">
+<a class="anchor" href="#validating-user-access-to-a-resource" aria-hidden="true"><span class="octicon octicon-link"></span></a>Validating user access to a resource</h1>
+<p>The last key we need to have all the tools to build the rest of the API is some way to verify whether a user has access to a given resource. Right now our only real resource are tweets, but most of our resources will have a <code class="language-plaintext highlighter-rouge">user_id</code> field for the owner of the resource.</p>
+
+<p>In our <code class="language-plaintext highlighter-rouge">AuthService.js</code> we’re going to add one more method that will take in a user, and a resource(tweet), validate that it exists, and that the user id matches the owner’s id.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">AuthService</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">...</span>
+
+    <span class="k">async</span> <span class="nx">verifyPermission</span><span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">resource</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">resource</span><span class="p">){</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">({</span>
+                <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Resource not exist</span><span class="dl">"</span><span class="p">,</span>
+                <span class="na">status</span><span class="p">:</span> <span class="mi">404</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span> <span class="o">!==</span> <span class="nx">resource</span><span class="p">.</span><span class="nx">user_id</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">({</span>
+                <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Invalid access</span><span class="dl">"</span><span class="p">,</span>
+                <span class="na">status</span><span class="p">:</span> <span class="mi">401</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+    <span class="p">...</span>
+</code></pre></div></div>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>I think I’m learning that in the future, I might finish a project before writing about it. So much revision happens during the process.</p>
+
+<p>Anyways, now that we have all of the tools we need to build the API, the rest is just busywork. Nothing of note to write about most likely. So the next post will probably be about either unit testing the express routes, or converting to the ORM library sequelize.</p>
+
+<p><a href="https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html">Previous post: Database Abstraction</a></p>
+
+<h1 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+<ul>
+  <li><a href="https://softwareontheroad.com/nodejs-jwt-authentication-oauth/">https://softwareontheroad.com/nodejs-jwt-authentication-oauth/</a></li>
+  <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">Mozilla HTTP Status Codes</a></li>
+  <li><a href="https://expressjs.com/en/guide/error-handling.html">https://expressjs.com/en/guide/error-handling.html</a></li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/webdev/2021/03/31/Controllers.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

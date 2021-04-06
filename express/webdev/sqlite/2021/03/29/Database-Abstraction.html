@@ -178,7 +178,7 @@ window.onload = wrap_img;
 
 <p>Code from this post can be found here</p>
 
-<p><a href="https://github.com/wrathofrathma/rest-express/tree/0110d64a82d262f477c69a2501e535803f4e3809">https://github.com/wrathofrathma/rest-express/tree/0110d64a82d262f477c69a2501e535803f4e3809</a></p>
+<p><a href="https://github.com/wrathofrathma/rest-express/tree/1c5af5c9540cb1dae667dfca87ca967f9e8fb0e2">https://github.com/wrathofrathma/rest-express/tree/1c5af5c9540cb1dae667dfca87ca967f9e8fb0e2</a></p>
 
 <h1 id="sqlite-error-handling">
 <a class="anchor" href="#sqlite-error-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sqlite error handling</h1>
@@ -484,10 +484,10 @@ window.onload = wrap_img;
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">res</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[];</span>
         
-        <span class="kd">const</span> <span class="nx">user_tweets</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">map</span><span class="p">(({</span><span class="nx">t</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nx">Tweet</span><span class="p">({</span>
+        <span class="kd">const</span> <span class="nx">user_tweets</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">t</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nx">Tweet</span><span class="p">({</span>
             <span class="na">id</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
             <span class="na">user_id</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">user_id</span><span class="p">,</span>
-            <span class="na">content</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">content</span>
+            <span class="na">contents</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">contents</span>
         <span class="p">}));</span>
 
         <span class="k">return</span> <span class="nx">user_tweets</span><span class="p">;</span>
