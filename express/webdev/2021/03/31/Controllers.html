@@ -94,7 +94,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      14 min read
+      13 min read
     
 </span></p>
 
@@ -167,7 +167,7 @@ window.onload = wrap_img;
 
 <p>All code from this series can be found here</p>
 
-<p>https://github.com/wrathofrathma/rest-express</p>
+<p><a href="https://github.com/wrathofrathma/rest-express">https://github.com/wrathofrathma/rest-express</a></p>
 
 <p>All code from this post can be found here</p>
 
@@ -532,17 +532,17 @@ window.onload = wrap_img;
 
 <span class="k">export</span> <span class="k">default</span> <span class="k">async</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">parseAuthToken</span><span class="p">(</span><span class="nx">req</span><span class="p">);</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="nx">jwt</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="dl">"</span><span class="s2">SomeRandomSekrit</span><span class="dl">"</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">decoded</span><span class="p">)</span> <span class="o">=&gt;</span><span class="nx">Now</span> <span class="nx">the</span> <span class="nx">GET</span> <span class="nx">request</span> <span class="nx">will</span> <span class="k">return</span> <span class="nx">the</span> <span class="nx">authenticated</span> <span class="nx">user</span><span class="dl">'</span><span class="s1">s information. Not that this is useful, but in practice we have all the tools we need to build the rest of the API.  {
-        if(err) 
-            next(new Error("Invalid token"));
-        req.user = await User.get({id: decoded.data.id});
-        return next();
-    })
-    .catch((err) =&gt; {
-        next(err);
-    })
-}
-</span></code></pre></div></div>
+    <span class="k">return</span> <span class="k">await</span> <span class="nx">jwt</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="dl">"</span><span class="s2">SomeRandomSekrit</span><span class="dl">"</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">decoded</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> 
+            <span class="nx">next</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="dl">"</span><span class="s2">Invalid token</span><span class="dl">"</span><span class="p">));</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="kd">get</span><span class="p">({</span><span class="na">id</span><span class="p">:</span> <span class="nx">decoded</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">});</span>
+        <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <h1 id="adding-authenticated-user-endpoint">
 <a class="anchor" href="#adding-authenticated-user-endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding authenticated user endpoint</h1>
