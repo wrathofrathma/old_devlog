@@ -23,7 +23,7 @@ All code from this project can be found here
 
 Code from this post can be found here
 
-[https://github.com/wrathofrathma/rest-express/tree/0110d64a82d262f477c69a2501e535803f4e3809](https://github.com/wrathofrathma/rest-express/tree/0110d64a82d262f477c69a2501e535803f4e3809)
+[https://github.com/wrathofrathma/rest-express/tree/1c5af5c9540cb1dae667dfca87ca967f9e8fb0e2](https://github.com/wrathofrathma/rest-express/tree/1c5af5c9540cb1dae667dfca87ca967f9e8fb0e2)
 
 # Sqlite error handling
 To be honest, I think the error handling is a complete shit show. Maybe it's my lack of experience with javascript, but neither the [sqlite documentation]() nor the [sqlite3 documentation](https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback) cover how to do error handling properly with this setup. Since this is more about the journey, I'll go over my problem solving process and the correct solution will be at the end.
@@ -318,10 +318,10 @@ class UserModel {
         if(!res)
             return [];
         
-        const user_tweets = res.map(({t}) => new Tweet({
+        const user_tweets = res.map(t => new Tweet({
             id: t.id,
             user_id: t.user_id,
-            content: t.content
+            contents: t.contents
         }));
 
         return user_tweets;
