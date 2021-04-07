@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Exploring REST APIs with Express.js (6/X): ORMs with Sequelize | Rathma’s Devlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Exploring REST APIs with Express.js (6/X): ORMs with Sequelize" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Replacing our backend with sequelize" />
+<meta property="og:description" content="Replacing our backend with sequelize" />
+<link rel="canonical" href="https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html" />
+<meta property="og:url" content="https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html" />
+<meta property="og:site_name" content="Rathma’s Devlog" />
+<meta property="og:image" content="https://www.kyso.dev/images/sequelize.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-04-03T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Replacing our backend with sequelize","url":"https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html","@type":"BlogPosting","headline":"Exploring REST APIs with Express.js (6/X): ORMs with Sequelize","dateModified":"2021-04-03T00:00:00-05:00","datePublished":"2021-04-03T00:00:00-05:00","image":"https://www.kyso.dev/images/sequelize.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://www.kyso.dev/feed.xml" title="Rathma's Devlog" /><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rathma&#39;s Devlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Exploring REST APIs with Express.js (6/X): ORMs with Sequelize</h1><p class="page-description">Replacing our backend with sequelize</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-04-03T00:00:00-05:00" itemprop="datePublished">
+        Apr 3, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      11 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#express">express</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#webdev">webdev</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#overview">Overview</a></li>
+<li class="toc-entry toc-h1"><a href="#setup">Setup</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#delete-old-database-stuff">Delete old database stuff</a></li>
+<li class="toc-entry toc-h2"><a href="#sequelize">Sequelize</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#install">Install</a></li>
+<li class="toc-entry toc-h3"><a href="#init">Init</a></li>
+<li class="toc-entry toc-h3"><a href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#creating-models--migrations">Creating models &amp; migrations</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#intro">Intro</a></li>
+<li class="toc-entry toc-h2"><a href="#creating-a-model--migration-pair">Creating a model &amp; migration pair</a></li>
+<li class="toc-entry toc-h2"><a href="#running-migrations">Running migrations</a></li>
+<li class="toc-entry toc-h2"><a href="#editing-our-migrations">Editing our migrations</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#making-a-field-unique">Making a field unique</a></li>
+<li class="toc-entry toc-h3"><a href="#working-with-foreign-keys--associations">Working with foreign keys &amp; associations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#unit-testing-the-new-models">Unit testing the new models</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#setup-1">Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#user-creation">User creation</a></li>
+<li class="toc-entry toc-h2"><a href="#fetching-users">Fetching users</a></li>
+<li class="toc-entry toc-h2"><a href="#updating-users">Updating users</a></li>
+<li class="toc-entry toc-h2"><a href="#creating-a-tweet">Creating a tweet</a></li>
+<li class="toc-entry toc-h2"><a href="#deleting-the-user">Deleting the user</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#updating-our-services-to-support-the-new-models">Updating our services to support the new models</a></li>
+<li class="toc-entry toc-h1"><a href="#closing">Closing</a></li>
+<li class="toc-entry toc-h1"><a href="#references">References</a></li>
+</ul><h1 id="overview">
+<a class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
+<p>We’ve already completed building the API, so now it’s just about making life easier. Instead of using our user-built models &amp; migrations, we can use a full fledged ORM package like sequelize to handle our database.</p>
+
+<p>In this post we will be converting our server to use the sequelize package and observing how simple the transition is because of our separation of model, service, and controller logic.</p>
+
+<p><a href="https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html">Previous post: Route controllers, services, error handling, authentication, and middleware</a></p>
+
+<p>All the code from this project</p>
+
+<p><a href="https://github.com/wrathofrathma/rest-express">https://github.com/wrathofrathma/rest-express</a></p>
+
+<p>Code from this post</p>
+
+<p><a href="https://github.com/wrathofrathma/rest-express/tree/d199402b428fa7be177378181e0980255df81452">https://github.com/wrathofrathma/rest-express/tree/d199402b428fa7be177378181e0980255df81452</a></p>
+
+<h1 id="setup">
+<a class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h1>
+<h2 id="delete-old-database-stuff">
+<a class="anchor" href="#delete-old-database-stuff" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete old database stuff</h2>
+<p>In order to switch databases, we need to delete all the database related code</p>
+
+<p>Files to delete</p>
+<ul>
+  <li>Delete <code class="language-plaintext highlighter-rouge">server/migrations/</code>
+</li>
+  <li>Delete <code class="language-plaintext highlighter-rouge">server/database/</code>
+</li>
+  <li>Delete <code class="language-plaintext highlighter-rouge">server/models/</code>
+</li>
+  <li>Delete <code class="language-plaintext highlighter-rouge">tests/database.test.js</code>
+</li>
+  <li>Delete <code class="language-plaintext highlighter-rouge">tests/models.test.js</code>
+</li>
+</ul>
+
+<p>Uninstall our sqlite package</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm uninstall sqlite
+</code></pre></div></div>
+
+<p>Edit our package.json scripts to remove the dbinit and migration scripts</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"dbinit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node ./dist/database/migrations.js"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"migrations"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all clean transpile dbinit"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<h2 id="sequelize">
+<a class="anchor" href="#sequelize" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sequelize</h2>
+<p>Sequelize is a Node.js ORM with support for most of the major databases and we’re going to be using this to handle our migrations and building our models.</p>
+
+<h3 id="install">
+<a class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install sequelize
+</code></pre></div></div>
+
+<h3 id="init">
+<a class="anchor" href="#init" aria-hidden="true"><span class="octicon octicon-link"></span></a>Init</h3>
+<p>To initialize sequelize in our project and add its scaffold to our project, we want to run the following command in the root of our project</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli init
+</code></pre></div></div>
+
+<p>This will generate a handful of files and folders in our project root for the <code class="language-plaintext highlighter-rouge">sequelize-cli</code> to interact with.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config/
+config/config.json
+migrations/
+models/
+models/index.js
+seeders/
+</code></pre></div></div>
+
+<h3 id="configuration">
+<a class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
+<p>Before proceeding, you need to configure sequelize to interact with your preferred database by editing the <code class="language-plaintext highlighter-rouge">config/config.js</code> file.</p>
+
+<p>The default configuration(at the time of writing)</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"development"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"database"</span><span class="p">:</span><span class="w"> </span><span class="s2">"database_development"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"127.0.0.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mysql"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"test"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"database"</span><span class="p">:</span><span class="w"> </span><span class="s2">"database_test"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"127.0.0.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mysql"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"production"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"database"</span><span class="p">:</span><span class="w"> </span><span class="s2">"database_production"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"127.0.0.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mysql"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>To tell sequelize that we want to use sqlite, we need to</p>
+<ul>
+  <li>change the <code class="language-plaintext highlighter-rouge">dialect</code> field to ‘sqlite’</li>
+  <li>add a <code class="language-plaintext highlighter-rouge">storage</code> field to the path of our database</li>
+  <li>remove the rest</li>
+</ul>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"development"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqlite"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"storage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./sqlite.db"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"test"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqlite"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"storage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./sqlite.db"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"production"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"dialect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqlite"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"storage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./sqlite.db"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="creating-models--migrations">
+<a class="anchor" href="#creating-models--migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating models &amp; migrations</h1>
+<h2 id="intro">
+<a class="anchor" href="#intro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intro</h2>
+<p>When working with sequelize to handle models and migrations, you have two options.</p>
+
+<p>The first option is to write them yourself following <a href="https://sequelize.org/master/manual/model-basics.html">the model documentation</a>, where you setup the database schema yourself and if your models change format, you can use <code class="language-plaintext highlighter-rouge">Model.sync({force: true})</code> to force update your database(frowned upon for production).</p>
+
+<p>The second option is what we’re doing, using the <code class="language-plaintext highlighter-rouge">npx sequelize-cli</code> tool to scaffold out and run our migrations &amp; models. This option is closer to what happens in production environments. This post will be exclusively working with the <code class="language-plaintext highlighter-rouge">sequelize-cli</code>.</p>
+
+<h2 id="creating-a-model--migration-pair">
+<a class="anchor" href="#creating-a-model--migration-pair" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a model &amp; migration pair</h2>
+<p>To create the first model, we use the <code class="language-plaintext highlighter-rouge">sequelize-cli model:generate</code> command.</p>
+
+<p>The command requires two arguments</p>
+<ul>
+  <li>name: name of the model</li>
+  <li>attributes: fields of the model</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli model:generate --name User --attributes username:string,password:string
+</code></pre></div></div>
+
+<p>This will</p>
+<ul>
+  <li>Create a user model in <code class="language-plaintext highlighter-rouge">models/user.js</code>
+</li>
+  <li>Create a migrations file in <code class="language-plaintext highlighter-rouge">migrations/XXXXXXXXXXXXX-create-user.js</code>
+</li>
+</ul>
+
+<p>Our model/table will contain fields for the attributes we specified, but also <code class="language-plaintext highlighter-rouge">id</code>, <code class="language-plaintext highlighter-rouge">createdAt</code>, and <code class="language-plaintext highlighter-rouge">updatedAt</code> fields. Below is a list of all the fields created by the above command</p>
+
+<ul>
+  <li>username:string</li>
+  <li>password:string</li>
+  <li>id:integer primary key</li>
+  <li>createdAt:date</li>
+  <li>updatedAt:date</li>
+</ul>
+
+<h2 id="running-migrations">
+<a class="anchor" href="#running-migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running migrations</h2>
+<p>To run our migrations and generate our database, we need to run the following command</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli db:migrate
+</code></pre></div></div>
+
+<p>This will go through every migrations file in our <code class="language-plaintext highlighter-rouge">migrations/</code> folder, check whether they’ve been run on the current database by comparing to a <code class="language-plaintext highlighter-rouge">SequelizeMeta</code> table, and generate tables for migrations that haven’t been run yet in the database.</p>
+
+<h2 id="editing-our-migrations">
+<a class="anchor" href="#editing-our-migrations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Editing our migrations</h2>
+<p>When we generated our migration/model, we only told the cli what fields we want and their base types, but nothing about foreign keys, unique columns, etc. We can edit our migration scripts before running <code class="language-plaintext highlighter-rouge">db:migrate</code> to handle this.</p>
+
+<p>The default <code class="language-plaintext highlighter-rouge">migrations-XXXXXXXXXXXX-create-user.js</code> from our command earlier.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">up</span><span class="p">:</span> <span class="k">async</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">createTable</span><span class="p">(</span><span class="dl">'</span><span class="s1">Users</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+      <span class="na">id</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">allowNull</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="na">autoIncrement</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="na">primaryKey</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span>
+      <span class="p">},</span>
+      <span class="na">username</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+      <span class="p">},</span>
+      <span class="na">password</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+      <span class="p">},</span>
+      <span class="na">createdAt</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">allowNull</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span>
+      <span class="p">},</span>
+      <span class="na">updatedAt</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">allowNull</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="na">down</span><span class="p">:</span> <span class="k">async</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">dropTable</span><span class="p">(</span><span class="dl">'</span><span class="s1">Users</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<h3 id="making-a-field-unique">
+<a class="anchor" href="#making-a-field-unique" aria-hidden="true"><span class="octicon octicon-link"></span></a>Making a field unique</h3>
+<p>Let’s say that we wanted to make the username field unique, we could just add the property <code class="language-plaintext highlighter-rouge">unique: true</code> to our username property.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">up</span><span class="p">:</span> <span class="k">async</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">createTable</span><span class="p">(</span><span class="dl">'</span><span class="s1">Users</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+      <span class="p">...</span>
+      <span class="na">username</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+        <span class="na">unique</span><span class="p">:</span> <span class="kc">true</span>
+      <span class="p">},</span>
+      <span class="p">...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Then we want to run our migrations again, but if we just run <code class="language-plaintext highlighter-rouge">sequelize-cli db:migrate</code>, our migrations won’t be run because the <code class="language-plaintext highlighter-rouge">SequelizeMeta</code> table says we’ve run our user script already. So we can either <code class="language-plaintext highlighter-rouge">db:migrate:undo</code> the last migration, or delete the database file…</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli db:migrate:undo
+npx sequelize-cli db:migrate
+</code></pre></div></div>
+
+<p>Now if we attempt to insert a duplicate username, the database will throw an error.</p>
+
+<h3 id="working-with-foreign-keys--associations">
+<a class="anchor" href="#working-with-foreign-keys--associations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Working with foreign keys &amp; associations</h3>
+<p>Before we can work with foreign keys, we need a second table. Let’s model our second table after our tweets table from our previous posts.</p>
+
+<p>Our tweets table only needs to contain the tweet contents since we’ll be using associations to handle getting the user that owns the tweet.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli model:generate --name Tweet --attributes contents:string
+</code></pre></div></div>
+
+<p>This will generate a model file that looks like this</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">use strict</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="p">{</span>
+  <span class="nx">Model</span>
+<span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">sequelize</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">(</span><span class="nx">sequelize</span><span class="p">,</span> <span class="nx">DataTypes</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">class</span> <span class="nx">Tweet</span> <span class="kd">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+    <span class="cm">/**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */</span>
+    <span class="kd">static</span> <span class="nx">associate</span><span class="p">(</span><span class="nx">models</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// define association here</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+  <span class="nx">Tweet</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+    <span class="na">contents</span><span class="p">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nx">sequelize</span><span class="p">,</span>
+    <span class="na">modelName</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Tweet</span><span class="dl">'</span><span class="p">,</span>
+  <span class="p">});</span>
+  <span class="k">return</span> <span class="nx">Tweet</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Now we’ll want to use associations to link each <code class="language-plaintext highlighter-rouge">Tweet</code> to a <code class="language-plaintext highlighter-rouge">User</code>. The available types of associations are</p>
+<ul>
+  <li>belongsTo</li>
+  <li>hasMany</li>
+  <li>hasOne</li>
+  <li>belongsToMany</li>
+</ul>
+
+<p>Typically these will occur in pairs, where if we define a <code class="language-plaintext highlighter-rouge">Tweet</code> belongsTo, we will likely have a hasMany association on the <code class="language-plaintext highlighter-rouge">User</code> model.</p>
+
+<p>To define this association with the user model, we want to add our <code class="language-plaintext highlighter-rouge">belongsTo</code> line in the <code class="language-plaintext highlighter-rouge">static associate(models)</code> function and the <code class="language-plaintext highlighter-rouge">models/index.js</code> file will handle the associations.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="p">...</span>
+    <span class="kd">class</span> <span class="nx">Tweet</span> <span class="kd">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+        <span class="p">...</span>
+        <span class="kd">static</span> <span class="nx">associate</span><span class="p">(</span><span class="nx">models</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">models</span><span class="p">.</span><span class="nx">User</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+    <span class="p">...</span>
+</code></pre></div></div>
+
+<p>We should also add the <code class="language-plaintext highlighter-rouge">hasMany()</code> association to the <code class="language-plaintext highlighter-rouge">User</code> model.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+  <span class="kd">class</span> <span class="nx">User</span> <span class="kd">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+    <span class="cm">/**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */</span>
+    <span class="kd">static</span> <span class="nx">associate</span><span class="p">(</span><span class="nx">models</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// define association here</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">models</span><span class="p">.</span><span class="nx">Tweet</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+  <span class="p">...</span>
+</code></pre></div></div>
+
+<p>Now when we work with a <code class="language-plaintext highlighter-rouge">Tweet</code> model object, the <code class="language-plaintext highlighter-rouge">Tweet.getUser()</code> method is added to the model because of the <code class="language-plaintext highlighter-rouge">hasOne(models.User)</code> association. The model will look for the userId field in the tweets table, but it isn’t defined yet, so we need to still add that to our migrations.</p>
+
+<p>In our <code class="language-plaintext highlighter-rouge">migrations/XXXXXXXXXXXXX-create-tweet.js</code> file we want to add a field for the userId.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+      <span class="nx">userId</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nl">type</span><span class="p">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+        <span class="nx">allowNull</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="nx">references</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nl">model</span><span class="p">:</span> <span class="dl">"</span><span class="s2">users</span><span class="dl">"</span><span class="p">,</span>
+          <span class="nx">key</span><span class="p">:</span> <span class="dl">"</span><span class="s2">id</span><span class="dl">"</span>
+        <span class="p">},</span>
+        <span class="nx">onDelete</span><span class="p">:</span> <span class="dl">"</span><span class="s2">cascade</span><span class="dl">"</span><span class="p">,</span>
+        <span class="nx">onUpdate</span><span class="p">:</span> <span class="dl">"</span><span class="s2">cascade</span><span class="dl">"</span>
+      <span class="p">},</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<p>The meat of this is really the <code class="language-plaintext highlighter-rouge">references</code> object that defines it as a foreign key. <code class="language-plaintext highlighter-rouge">onDelete: cascade</code> and <code class="language-plaintext highlighter-rouge">onUpdate: cascade</code> forces the tweet to be updated if the foreign key gets altered or removed. Lastly, if you don’t add the <code class="language-plaintext highlighter-rouge">allowNull: false</code> field to <code class="language-plaintext highlighter-rouge">userID</code>, you won’t be required to define a foreign key, and we can’t have ghost tweets.</p>
+
+<p>Now we will want to run our migration scripts once more to make sure our tweets table is added. We didn’t change the user script, so we don’t have to undo our previous migrations.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx sequelize-cli db:migrate
+</code></pre></div></div>
+
+<h1 id="unit-testing-the-new-models">
+<a class="anchor" href="#unit-testing-the-new-models" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unit testing the new models</h1>
+<p>To validate that everything is working, I set up a handful of new unit tests based on the sequelize <a href="https://sequelize.org/master/manual/model-querying-basics.html">model query guide</a> or the <a href="https://sequelize.org/v3/docs/querying/">reference</a>.</p>
+
+<h2 id="setup-1">
+<a class="anchor" href="#setup-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+<p>First I import both models and setup the test environment and some variables I know I’ll be using for creating and updating users.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">Models</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">../models</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">Models</span><span class="p">.</span><span class="nx">User</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">Tweet</span> <span class="o">=</span> <span class="nx">Models</span><span class="p">.</span><span class="nx">Tweet</span><span class="p">;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">sequelize:CRUD</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">user</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">rathma</span><span class="dl">"</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">password</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">somepass</span><span class="dl">"</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">username2</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">rathma2</span><span class="dl">"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="user-creation">
+<a class="anchor" href="#user-creation" aria-hidden="true"><span class="octicon octicon-link"></span></a>User creation</h2>
+<p>User creation is basically the same as our previous models. The create method takes in an object for the properties we want to initialize the entry with and it returns a <code class="language-plaintext highlighter-rouge">User</code> model object.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Create User</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+            <span class="nx">username</span><span class="p">,</span>
+            <span class="nx">password</span>
+        <span class="p">});</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">User</span><span class="p">));</span>
+    <span class="p">})</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<h2 id="fetching-users">
+<a class="anchor" href="#fetching-users" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fetching users</h2>
+<p>Fetching users is similar to other database models where we use <code class="language-plaintext highlighter-rouge">Model.findOne()</code> and <code class="language-plaintext highlighter-rouge">Model.findAll()</code> methods to select rows.</p>
+
+<p>To specify which user, we pass in the object <code class="language-plaintext highlighter-rouge">where: { username: "someusername" }</code> which acts as a <code class="language-plaintext highlighter-rouge">SELECT</code> SQL operation.</p>
+
+<p><code class="language-plaintext highlighter-rouge">User.findOne()</code> should return one <code class="language-plaintext highlighter-rouge">User</code> model instance for the row, whereas <code class="language-plaintext highlighter-rouge">User.findAll()</code> would return all matching rows in a list of <code class="language-plaintext highlighter-rouge">User</code> objects.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Get User</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+            <span class="na">where</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nx">username</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">User</span><span class="p">));</span>
+    <span class="p">})</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<h2 id="updating-users">
+<a class="anchor" href="#updating-users" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updating users</h2>
+<p>When updating users, we use the <code class="language-plaintext highlighter-rouge">Model.update(updatedFields, whichFields)</code> method. Similar to fetching users, we can use the <code class="language-plaintext highlighter-rouge">where</code> object to specify which users to select/update.</p>
+
+<p>Update and delete operations return an array containing 1 for successful or 0 for failure. I haven’t checked, but it might be an array to represent which rows were successful and which were failures when updating multiple rows?</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Update User</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="na">username</span><span class="p">:</span> <span class="nx">username2</span><span class="p">},</span> <span class="p">{</span>
+            <span class="na">where</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">id</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">})</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<h2 id="creating-a-tweet">
+<a class="anchor" href="#creating-a-tweet" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a tweet</h2>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+    <span class="kd">var</span> <span class="nx">tweet</span><span class="p">;</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Create tweet</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">tweet</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">Tweet</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+            <span class="na">UserId</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+            <span class="na">contents</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Hello world!</span><span class="dl">"</span>
+        <span class="p">})</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">tweet</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">Tweet</span><span class="p">))</span>
+    <span class="p">})</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<h2 id="deleting-the-user">
+<a class="anchor" href="#deleting-the-user" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deleting the user</h2>
+<p>Deleting our user should also cascade delete our tweets created by the user. I didn’t check that here, but I looked in the database manually to verify.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+    <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Delete User</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span>
+            <span class="na">where</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">id</span><span class="p">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">res</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// 1 = deleted, 0 = not</span>
+    <span class="p">})</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<h1 id="updating-our-services-to-support-the-new-models">
+<a class="anchor" href="#updating-our-services-to-support-the-new-models" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updating our services to support the new models</h1>
+<p>In order to make our API use the new models, we only need to update 4 files (which are the only 4 files that interact with the model layer)</p>
+
+<ul>
+  <li>Auth middleware (since we fetch the user)</li>
+  <li>Auth service</li>
+  <li>User service</li>
+  <li>Tweet service</li>
+</ul>
+
+<p>The main changes I made to accomodate the change were just the imports and calls,</p>
+
+<p>Here is the git diff of the AuthService.js. We only changed the User import, how we’re fetching the user, and we’re comparing to <code class="language-plaintext highlighter-rouge">resource.User.id</code> instead of <code class="language-plaintext highlighter-rouge">resource.user_id</code> because of the way the sequelize associations work.</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/server/services/AuthService.js b/server/services/AuthService.js
+index 444010f..4f4a073 100644
+</span><span class="gd">--- a/server/services/AuthService.js
+</span><span class="gi">+++ b/server/services/AuthService.js
+</span><span class="p">@@ -1,11 +1,13 @@</span>
+<span class="gd">-import User from '../models/UserModel';
+</span><span class="gi">+const User = require("../../models").User;
+</span> import Exception from '../exceptions/GenericException';
+ import * as argon2 from 'argon2';
+ import * as jwt from 'jsonwebtoken';
+ 
+ const AuthService = {
+     async login({username, password}) {
+<span class="gd">-        const user = await User.get({username});
+</span><span class="gi">+        const user = await User.findOne({
++            where: {username}
++        });
+</span> 
+         const correct_pwd = await argon2.verify(user.password, password);
+         if(!correct_pwd){
+<span class="p">@@ -51,7 +53,8 @@</span> const AuthService = {
+                 status: 404
+             });
+         }
+<span class="gd">-        if(user.id !== resource.user_id) {
+</span><span class="gi">+
++        if(user.id !== resource.User.id) {
+</span>             throw new Exception({
+                 message: "Invalid access",
+                 status: 401
+</code></pre></div></div>
+
+<p>The other main change is that our models no longer have a <code class="language-plaintext highlighter-rouge">Model.json()</code> method, so I added <code class="language-plaintext highlighter-rouge">Service.jsonify()</code> methods to both Tweet &amp; User services.</p>
+
+<p>Here’s an example of the UserService</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/server/services/UserService.js b/server/services/UserService.js
+index 23bce7b..1f6e8be 100644
+</span><span class="gd">--- a/server/services/UserService.js
+</span><span class="gi">+++ b/server/services/UserService.js
+</span><span class="p">@@ -1,23 +1,18 @@</span>
+ import Exception from '../exceptions/GenericException';
+<span class="gi">+import TweetService from './TweetService';
+</span> 
+ const UserService = {
+     async delete({user}) {
+<span class="gd">-        return await user.delete()
+</span><span class="gi">+        return await user.destroy()
+</span>         .then(() =&gt; {
+<span class="gd">-            return {
+-                id: user.id,
+-                username: user.username
+-            }
+</span><span class="gi">+            return UserService.jsonify(user);
+</span>         })
+     },
+ 
+     async update({user, username, password}) {
+         return await user.update({username, password})
+         .then(() =&gt; {
+<span class="gd">-            return {
+-                id: user.id,
+-                username: user.username,
+-            }
+</span><span class="gi">+            return UserService.jsonify(user);
+</span>         })
+         .catch((err) =&gt; {
+             throw new Exception({
+<span class="p">@@ -28,10 +23,20 @@</span> const UserService = {
+     },
+ 
+     async tweets({user}) {
+<span class="gd">-        return await user.tweets()
+-        .then((utweets) =&gt; {
+-            return utweets.map(t =&gt; t.json());
+</span><span class="gi">+        return await user.getTweets()
++        .then((ts) =&gt; {
++            return ts.map(t =&gt; {
++                t.User = user;
++                return TweetService.jsonify(t);
++            })
+</span>         })
+<span class="gi">+    },
++
++    jsonify(user) {
++        return {
++            id: user.id,
++            username: user.username
++        }
+</span>     }
+ }
+</code></pre></div></div>
+
+<p>Applying similar changes to the TweetService brings our application back up to full functionality.</p>
+
+<h1 id="closing">
+<a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+
+<h1 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+<ul>
+  <li><a href="https://sequelize.org/master/">https://sequelize.org/master/</a></li>
+  <li><a href="https://sequelize.org/master/manual/migrations.html">https://sequelize.org/master/manual/migrations.html</a></li>
+  <li><a href="https://sequelize.org/master/manual/model-querying-basics.html">https://sequelize.org/master/manual/model-querying-basics.html</a></li>
+  <li><a href="https://sequelize.org/v3/docs/querying/">https://sequelize.org/v3/docs/querying/</a></li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="wrathofrathma/devlog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/express/webdev/2021/04/03/ORM-Sequelize.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A blog about stuff I find interesting.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/wrathofrathma" title="wrathofrathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/PriestOfRathma" title="PriestOfRathma"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
