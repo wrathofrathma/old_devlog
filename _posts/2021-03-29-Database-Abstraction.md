@@ -1,5 +1,5 @@
 ---
-title: "Creating a REST API with Express.js (4/X): Database abstraction and error handling"
+title: "Exploring REST APIs with Express.js (4/X): Database abstraction and error handling"
 description: "Building a class to abstract database interactions and error handling"
 layout: post
 toc: true

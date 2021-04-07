@@ -1,5 +1,5 @@
 ---
-title: "Creating a REST API with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware"
+title: "Exploring REST APIs with Express.js (5/X): Route controllers, Services, express error handling, basic authentication, and auth middleware"
 description: "Route controllers, services, basic authentication, express error handling"
 layout: post
 toc: true
@@ -14,6 +14,8 @@ image: images/express.png
 Now that most of the foundation is laid, we can finally start building out endpoint to the outside world. This process will involve building route controllers, a service layer between the models and controllers, more useful errors, setting up basic authentication, and adding auth middleware. So this post will be a bit longer than the others.
 
 [Previous post: Database Abstraction](https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html)
+
+[Next post: ORMs with Sequelize](https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html)
 
 All code from this series can be found here
 
@@ -452,6 +454,8 @@ I think I'm learning that in the future, I might finish a project before writing
 Anyways, now that we have all of the tools we need to build the API, the rest is just busywork. Nothing of note to write about most likely. So the next post will probably be about either unit testing the express routes, or converting to the ORM library sequelize.
 
 [Previous post: Database Abstraction](https://www.kyso.dev/express/webdev/sqlite/2021/03/29/Database-Abstraction.html)
+
+[Next post: ORMs with Sequelize](https://www.kyso.dev/express/webdev/2021/04/03/ORM-Sequelize.html)
 
 # References
 - [https://softwareontheroad.com/nodejs-jwt-authentication-oauth/](https://softwareontheroad.com/nodejs-jwt-authentication-oauth/)

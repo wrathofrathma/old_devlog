@@ -1,5 +1,5 @@
 ---
-title: "Creating a REST API with Express.js (3/X): Unit Testing"
+title: "Exploring REST APIs with Express.js (3/X): Unit Testing"
 description: "Unit testing our database with Jest!"
 layout: post
 toc: true

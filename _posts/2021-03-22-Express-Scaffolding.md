@@ -1,5 +1,5 @@
 ---
-title: "Creating a REST API with Express.js (1/X): Express Scaffolding"
+title: "Exploring REST APIs with Express.js (1/X): Express Scaffolding"
 description: "Learning to create an express project with support for ES6 modules and a hot reloading dev environment."
 layout: post
 toc: true

@@ -1,5 +1,5 @@
 ---
-title: "Creating a REST API with Express.js (2/X): Sqlite Database"
+title: "Exploring REST APIs with Express.js (2/X): Sqlite Database"
 description: "Implementing support for an asychronous sqlite database."
 layout: post
 toc: true
