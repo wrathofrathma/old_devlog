@@ -94,7 +94,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      11 min read
+      12 min read
     
 </span></p>
 
@@ -616,6 +616,8 @@ npx sequelize-cli db:migrate
 
 <p>Here is the git diff of the AuthService.js. We only changed the User import, how we’re fetching the user, and we’re comparing to <code class="language-plaintext highlighter-rouge">resource.User.id</code> instead of <code class="language-plaintext highlighter-rouge">resource.user_id</code> because of the way the sequelize associations work.</p>
 
+<p>Pay close attention to the <code class="language-plaintext highlighter-rouge">import</code> vs <code class="language-plaintext highlighter-rouge">require</code> used for fetching the models.</p>
+
 <div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/server/services/AuthService.js b/server/services/AuthService.js
 index 444010f..4f4a073 100644
 </span><span class="gd">--- a/server/services/AuthService.js
@@ -713,6 +715,9 @@ index 23bce7b..1f6e8be 100644
 
 <h1 id="closing">
 <a class="anchor" href="#closing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Closing</h1>
+<p>Well, that’s about it for getting started with sequelize. It was actually quite painless once I got rolling with the CLI. Doing things by hand before that was kinda painful though. Next time I’m going to look into getting into firebase &amp; firestore since that’s my goal. I was just learning express until then.</p>
+
+<p><a href="https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html">Previous post: Route controllers, services, error handling, authentication, and middleware</a></p>
 
 <h1 id="references">
 <a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
