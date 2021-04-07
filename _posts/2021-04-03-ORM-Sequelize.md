@@ -456,6 +456,8 @@ The main changes I made to accomodate the change were just the imports and calls
 
 Here is the git diff of the AuthService.js. We only changed the User import, how we're fetching the user, and we're comparing to ``resource.User.id`` instead of ``resource.user_id`` because of the way the sequelize associations work.
 
+Pay close attention to the ``import`` vs ``require`` used for fetching the models.
+
 ```diff
 diff --git a/server/services/AuthService.js b/server/services/AuthService.js
 index 444010f..4f4a073 100644
@@ -554,7 +556,9 @@ index 23bce7b..1f6e8be 100644
 Applying similar changes to the TweetService brings our application back up to full functionality.
 
 # Closing
+Well, that's about it for getting started with sequelize. It was actually quite painless once I got rolling with the CLI. Doing things by hand before that was kinda painful though. Next time I'm going to look into getting into firebase & firestore since that's my goal. I was just learning express until then.
 
+[Previous post: Route controllers, services, error handling, authentication, and middleware](https://www.kyso.dev/express/webdev/2021/03/31/Controllers.html)
 
 # References 
 - [https://sequelize.org/master/](https://sequelize.org/master/)
